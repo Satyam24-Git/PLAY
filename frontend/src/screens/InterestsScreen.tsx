@@ -248,7 +248,7 @@ export default function InterestsScreen({ navigation }: any) {
               <Text style={styles.backLabel}>Back</Text>
             </TouchableOpacity>
 
-            <Animated.View style={{ flex: 1, opacity: fadeAnim, transform: [{ translateX: slideAnim }] }}>
+            <Animated.View style={{ opacity: fadeAnim, transform: [{ translateX: slideAnim }] }}>
               <Text style={[Typography.headline, styles.formTitle]}>{STEP_CONFIG[step].title}</Text>
               <Text style={[Typography.callout, styles.formSubtitle]}>{STEP_CONFIG[step].subtitle}</Text>
 
