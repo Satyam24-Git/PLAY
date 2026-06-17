@@ -7,6 +7,7 @@ import OTPScreen from '../screens/OTPScreen';
 import InterestsScreen from '../screens/InterestsScreen';
 import AllSetScreen from '../screens/AllSetScreen';
 import MainTabNavigator from './MainTabNavigator';
+import WebLayoutWrapper from '../components/WebLayoutWrapper';
 
 export type RootStackParamList = {
   Email: undefined;
@@ -17,6 +18,12 @@ export type RootStackParamList = {
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
+
+const MainLayout = () => (
+  <WebLayoutWrapper>
+    <MainTabNavigator />
+  </WebLayoutWrapper>
+);
 
 export default function AppNavigator() {
   return (
@@ -48,7 +55,7 @@ export default function AppNavigator() {
         <Stack.Screen name="OTP" component={OTPScreen} />
         <Stack.Screen name="Interests" component={InterestsScreen} />
         <Stack.Screen name="AllSet" component={AllSetScreen} />
-        <Stack.Screen name="Main" component={MainTabNavigator} />
+        <Stack.Screen name="Main" component={MainLayout} />
       </Stack.Navigator>
     </NavigationContainer>
   );

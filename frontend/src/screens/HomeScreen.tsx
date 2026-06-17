@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { useResponsive } from '../hooks/useResponsive';
-import ScreenBackground from '../components/ScreenBackground';
 
 // Types for backend compatibility
 interface Advertisement {
@@ -106,7 +105,7 @@ export default function HomeScreen() {
         <View style={styles.locationTextContainer}>
           <Text style={[Typography.caption, { color: Colors.textSecondary }]}>Current Location</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={[Typography.headline, { color: isMobile ? '#FFF' : Colors.textPrimary, fontSize: 16 }]}>New York, USA</Text>
+            <Text style={[Typography.headline, { color: '#FFF', fontSize: 16 }]}>New York, USA</Text>
             <Ionicons name="chevron-down" size={16} color={Colors.textSecondary} style={{ marginLeft: 4 }} />
           </View>
         </View>
@@ -114,7 +113,7 @@ export default function HomeScreen() {
 
       <View style={styles.headerActions}>
         <TouchableOpacity style={styles.actionIcon}>
-          <Ionicons name="bag-handle-outline" size={28} color={isMobile ? '#FFF' : Colors.textPrimary} />
+          <Ionicons name="bag-handle-outline" size={28} color="#FFF" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.profileAvatar}>
           <Ionicons name="person" size={20} color={Colors.primary} />
@@ -145,7 +144,9 @@ export default function HomeScreen() {
     
     return (
       <View style={styles.section}>
-        <Text style={[Typography.title2, styles.sectionTitle, { color: isMobile ? '#FFF' : Colors.textPrimary }]}>Upcoming Bookings</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Upcoming Bookings</Text>
+        </View>
         {bookings.map((booking) => (
           <View key={booking.id} style={styles.bookingCard}>
             <View style={styles.bookingHeader}>
@@ -173,7 +174,9 @@ export default function HomeScreen() {
     
     return (
       <View style={styles.section}>
-        <Text style={[Typography.title2, styles.sectionTitle, { color: isMobile ? '#FFF' : Colors.textPrimary }]}>Your Stats</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Your Stats</Text>
+        </View>
         <View style={styles.analyticsRow}>
           <View style={styles.statCard}>
             <Text style={styles.statValue}>{userStats.matches}</Text>
@@ -194,7 +197,9 @@ export default function HomeScreen() {
 
   const renderSportsBar = () => (
     <View style={styles.section}>
-      <Text style={[Typography.title2, styles.sectionTitle, { color: isMobile ? '#FFF' : Colors.textPrimary }]}>Categories</Text>
+      <View style={styles.sectionHeader}>
+        <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Categories</Text>
+      </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sportsScroll}>
         {SPORTS.map((sport, index) => (
           <TouchableOpacity key={sport.id} style={[styles.sportChip, index === 0 && styles.sportChipActive]}>
@@ -212,7 +217,7 @@ export default function HomeScreen() {
     return (
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={[Typography.title2, styles.sectionTitle, { color: isMobile ? '#FFF' : Colors.textPrimary }]}>Popular Venues</Text>
+          <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Popular Venues</Text>
           <TouchableOpacity onPress={() => setViewAllSection('venues')}>
             <Text style={styles.seeAllText}>See All</Text>
           </TouchableOpacity>
@@ -242,7 +247,7 @@ export default function HomeScreen() {
         <View style={[styles.sectionHeader, { justifyContent: 'flex-start' }]}>
           <TouchableOpacity onPress={() => setViewAllSection(null)} style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Ionicons name="arrow-back" size={24} color={Colors.primary} />
-            <Text style={[Typography.title2, { color: isMobile ? '#FFF' : Colors.textPrimary, marginLeft: 8 }]}>All Venues</Text>
+            <Text style={[Typography.title2, { color: '#FFF', marginLeft: 8 }]}>All Venues</Text>
           </TouchableOpacity>
         </View>
         {venues.map((venue) => (
@@ -266,16 +271,14 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.root, styles.centerAll, isMobile && { backgroundColor: Colors.textPrimary }]}>
-        {!isMobile && <ScreenBackground />}
+      <View style={[styles.root, styles.centerAll, { backgroundColor: Colors.textPrimary }]}>
         <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
 
   return (
-    <View style={[styles.root, isMobile && { backgroundColor: Colors.textPrimary }]}>
-      {!isMobile && <ScreenBackground />}
+    <View style={[styles.root, { backgroundColor: Colors.textPrimary }]}>
       <SafeAreaView style={styles.safe} edges={['top']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {renderHeader()}

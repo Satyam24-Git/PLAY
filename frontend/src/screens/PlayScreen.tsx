@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { useResponsive } from '../hooks/useResponsive';
-import ScreenBackground from '../components/ScreenBackground';
 
 // Types for backend compatibility
 interface Advertisement {
@@ -108,7 +107,7 @@ export default function PlayScreen() {
         <View style={styles.locationTextContainer}>
           <Text style={[Typography.caption, { color: Colors.textSecondary }]}>Current Location</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={[Typography.headline, { color: isMobile ? '#FFF' : Colors.textPrimary, fontSize: 16 }]}>New York, USA</Text>
+            <Text style={[Typography.headline, { color: '#FFF', fontSize: 16 }]}>New York, USA</Text>
             <Ionicons name="chevron-down" size={16} color={Colors.textSecondary} style={{ marginLeft: 4 }} />
           </View>
         </View>
@@ -116,7 +115,7 @@ export default function PlayScreen() {
 
       <View style={styles.headerActions}>
         <TouchableOpacity style={styles.actionIcon}>
-          <Ionicons name="bag-handle-outline" size={28} color={isMobile ? '#FFF' : Colors.textPrimary} />
+          <Ionicons name="bag-handle-outline" size={28} color="#FFF" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.profileAvatar}>
           <Ionicons name="person" size={20} color={Colors.primary} />
@@ -181,7 +180,7 @@ export default function PlayScreen() {
     if (!previousBookings.length) return null;
     return (
       <View style={styles.section}>
-        <Text style={[Typography.title2, styles.sectionTitle, { color: isMobile ? '#FFF' : Colors.textPrimary }]}>Play it again</Text>
+        <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Play it again</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.previousScroll}>
           {previousBookings.map((booking) => (
             <View key={booking.id} style={styles.previousCard}>
@@ -205,7 +204,7 @@ export default function PlayScreen() {
     return (
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={[Typography.title2, styles.sectionTitle, { color: isMobile ? '#FFF' : Colors.textPrimary }]}>Available Venues</Text>
+          <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Available Venues</Text>
         </View>
         {venues.map((venue) => (
           <TouchableOpacity key={venue.id} style={styles.venueCard}>
@@ -228,16 +227,14 @@ export default function PlayScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.root, styles.centerAll, isMobile && { backgroundColor: Colors.textPrimary }]}>
-        {!isMobile && <ScreenBackground />}
+      <View style={[styles.root, styles.centerAll, { backgroundColor: Colors.textPrimary }]}>
         <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
 
   return (
-    <View style={[styles.root, isMobile && { backgroundColor: Colors.textPrimary }]}>
-      {!isMobile && <ScreenBackground />}
+    <View style={[styles.root, { backgroundColor: Colors.textPrimary }]}>
       <SafeAreaView style={styles.safe} edges={['top']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {renderHeader()}

@@ -34,14 +34,26 @@ export default function MainTabNavigator() {
         },
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textTertiary,
-        tabBarStyle: styles.tabBar,
-        tabBarBackground: () => (
-          <BlurView
-            tint="dark"
-            intensity={80}
-            style={StyleSheet.absoluteFill}
-          />
-        ),
+        tabBarStyle: [styles.tabBar, { paddingBottom: Platform.OS === 'ios' ? 20 : 0 }],
+        tabBarItemStyle: {
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingVertical: 4,
+        },
+        tabBarLabelStyle: {
+          paddingBottom: 0,
+          marginTop: -4,
+        },
+        tabBarBackground: () => {
+          if (Platform.OS === 'web') return null;
+          return (
+            <BlurView
+              tint="dark"
+              intensity={80}
+              style={StyleSheet.absoluteFill}
+            />
+          );
+        },
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
@@ -57,16 +69,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderTopWidth: 0,
     elevation: 0,
-    backgroundColor: Platform.OS === 'web' ? 'rgba(0, 0, 0, 0.75)' : 'transparent',
-    // Fallback for web if BlurView doesn't cover it fully
+    backgroundColor: Platform.OS === 'web' ? 'rgba(0, 0, 0, 0.85)' : 'transparent',
     ...(Platform.OS === 'web' && {
-      backdropFilter: 'blur(10px)',
+      backdropFilter: 'blur(16px)',
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.1)',
     } as any),
     bottom: 24,
     left: 20,
     right: 20,
-    height: 64,
-    borderRadius: 32,
+    height: 70,
+    borderRadius: 35,
     overflow: 'hidden',
+    zIndex: 100,
   },
 });

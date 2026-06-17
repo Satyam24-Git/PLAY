@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { useResponsive } from '../hooks/useResponsive';
-import ScreenBackground from '../components/ScreenBackground';
 
 // Types for backend compatibility
 interface SponsoredEvent {
@@ -97,7 +96,7 @@ export default function EventsScreen() {
         <View style={styles.locationTextContainer}>
           <Text style={[Typography.caption, { color: Colors.textSecondary }]}>Current Location</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={[Typography.headline, { color: isMobile ? '#FFF' : Colors.textPrimary, fontSize: 16 }]}>New York, USA</Text>
+            <Text style={[Typography.headline, { color: '#FFF', fontSize: 16 }]}>New York, USA</Text>
             <Ionicons name="chevron-down" size={16} color={Colors.textSecondary} style={{ marginLeft: 4 }} />
           </View>
         </View>
@@ -105,7 +104,7 @@ export default function EventsScreen() {
 
       <View style={styles.headerActions}>
         <TouchableOpacity style={styles.actionIcon}>
-          <Ionicons name="bag-handle-outline" size={28} color={isMobile ? '#FFF' : Colors.textPrimary} />
+          <Ionicons name="bag-handle-outline" size={28} color="#FFF" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.profileAvatar}>
           <Ionicons name="person" size={20} color={Colors.primary} />
@@ -132,8 +131,8 @@ export default function EventsScreen() {
   const renderSponsoredCarousel = () => {
     if (!sponsoredEvents.length) return null;
     return (
-      <View style={styles.section}>
-        <Text style={[Typography.title2, styles.sectionTitle, { color: isMobile ? '#FFF' : Colors.textPrimary }]}>Events Near You</Text>
+      <View style={styles.sectionHeader}>
+        <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Events Near You</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
           {sponsoredEvents.map((event) => (
             <View key={event.id} style={styles.sponsoredCard}>
@@ -172,7 +171,7 @@ export default function EventsScreen() {
     return (
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={[Typography.title2, styles.sectionTitle, { color: isMobile ? '#FFF' : Colors.textPrimary, marginBottom: 0 }]}>Popular Communities</Text>
+          <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Popular Communities</Text>
           <TouchableOpacity onPress={() => setViewAllSection('communities')}>
             <Text style={styles.seeAllText}>See All</Text>
           </TouchableOpacity>
@@ -181,7 +180,7 @@ export default function EventsScreen() {
           {communities.map((community) => (
             <View key={community.id} style={styles.communityCard}>
               <Image source={{ uri: community.image }} style={styles.communityImage} />
-              <Text style={[Typography.headline, styles.communityName, { color: isMobile ? '#FFF' : Colors.textPrimary }]} numberOfLines={1}>{community.name}</Text>
+              <Text style={[Typography.headline, styles.communityName, { color: '#FFF' }]} numberOfLines={1}>{community.name}</Text>
               <Text style={[Typography.caption, { color: Colors.textSecondary }]}>{community.members} members</Text>
             </View>
           ))}
@@ -196,14 +195,14 @@ export default function EventsScreen() {
         <View style={[styles.sectionHeader, { justifyContent: 'flex-start' }]}>
           <TouchableOpacity onPress={() => setViewAllSection(null)} style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Ionicons name="arrow-back" size={24} color={Colors.primary} />
-            <Text style={[Typography.title2, { color: isMobile ? '#FFF' : Colors.textPrimary, marginLeft: 8 }]}>All Communities</Text>
+            <Text style={[Typography.title2, { color: '#FFF', marginLeft: 8 }]}>All Communities</Text>
           </TouchableOpacity>
         </View>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: 10 }}>
           {communities.map((community) => (
             <View key={community.id} style={[styles.communityCard, { marginBottom: 32, marginRight: 0, width: '30%' }]}>
               <Image source={{ uri: community.image }} style={styles.communityImage} />
-              <Text style={[Typography.headline, styles.communityName, { color: isMobile ? '#FFF' : Colors.textPrimary }]} numberOfLines={2}>{community.name}</Text>
+              <Text style={[Typography.headline, styles.communityName, { color: '#FFF' }]} numberOfLines={2}>{community.name}</Text>
               <Text style={[Typography.caption, { color: Colors.textSecondary }]}>{community.members} members</Text>
             </View>
           ))}
@@ -215,8 +214,8 @@ export default function EventsScreen() {
   const renderEventList = () => {
     if (!events.length) return null;
     return (
-      <View style={styles.section}>
-        <Text style={[Typography.title2, styles.sectionTitle, { color: isMobile ? '#FFF' : Colors.textPrimary }]}>Upcoming Events</Text>
+      <View style={styles.sectionHeader}>
+        <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Upcoming Events</Text>
         {events.map((event) => (
           <TouchableOpacity key={event.id} style={styles.eventCard}>
             <Image source={{ uri: event.image }} style={styles.eventImage} />
@@ -258,16 +257,14 @@ export default function EventsScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.root, styles.centerAll, isMobile && { backgroundColor: Colors.textPrimary }]}>
-        {!isMobile && <ScreenBackground />}
+      <View style={[styles.root, styles.centerAll, { backgroundColor: Colors.textPrimary }]}>
         <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
 
   return (
-    <View style={[styles.root, isMobile && { backgroundColor: Colors.textPrimary }]}>
-      {!isMobile && <ScreenBackground />}
+    <View style={[styles.root, { backgroundColor: Colors.textPrimary }]}>
       <SafeAreaView style={styles.safe} edges={['top']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {renderHeader()}
