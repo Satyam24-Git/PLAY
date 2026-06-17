@@ -3,16 +3,19 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TextInput,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../navigation/AppNavigator';
 import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
+import { useTheme } from '../theme/ThemeContext';
 
 const INTERESTS = ['Football', 'Tennis', 'Basketball', 'Running', 'Padel', 'Cycling'];
 
 export default function ProfileScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const { isDarkMode, toggleTheme, theme } = useTheme();
   const [bio, setBio] = useState('');
   const [isGeneratingBio, setIsGeneratingBio] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
 
   const handleGenerateBio = () => {
     setIsGeneratingBio(true);
@@ -23,15 +26,7 @@ export default function ProfileScreen() {
     }, 1500);
   };
 
-  const renderHeader = () => (
-    <View style={styles.header}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
-        <Ionicons name="arrow-back" size={28} color="#FFF" />
-      </TouchableOpacity>
-      <Text style={[Typography.title2, { color: '#FFF' }]}>Profile</Text>
-      <View style={{ width: 28 }} /> {/* Spacer to balance the back button */}
-    </View>
-  );
+  // renderHeader is removed as it is now inline
 
   const renderBasicInfo = () => (
     <View style={styles.infoSection}>
@@ -44,23 +39,23 @@ export default function ProfileScreen() {
           <Ionicons name="checkmark" size={14} color="#000" />
         </View>
       </View>
-      <Text style={[Typography.title1, styles.name]}>Alex Johnson</Text>
-      <Text style={[Typography.body, styles.handle]}>@alexplays</Text>
+      <Text style={[Typography.title1, styles.name, { color: theme.text }]}>Alex Johnson</Text>
+      <Text style={[Typography.body, styles.handle, { color: theme.textSecondary }]}>@alexplays</Text>
       
-      <View style={styles.statsRow}>
+      <View style={[styles.statsRow, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
         <View style={styles.statItem}>
-          <Text style={styles.statValue}>Lvl 12</Text>
-          <Text style={styles.statLabel}>Rank</Text>
+          <Text style={[styles.statValue, { color: theme.text }]}>Lvl 12</Text>
+          <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Rank</Text>
         </View>
-        <View style={styles.statDivider} />
+        <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
         <View style={styles.statItem}>
-          <Text style={styles.statValue}>45</Text>
-          <Text style={styles.statLabel}>Matches</Text>
+          <Text style={[styles.statValue, { color: theme.text }]}>45</Text>
+          <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Matches</Text>
         </View>
-        <View style={styles.statDivider} />
+        <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
         <View style={styles.statItem}>
-          <Text style={styles.statValue}>18</Text>
-          <Text style={styles.statLabel}>Connections</Text>
+          <Text style={[styles.statValue, { color: theme.text }]}>18</Text>
+          <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Connections</Text>
         </View>
       </View>
     </View>
@@ -68,18 +63,18 @@ export default function ProfileScreen() {
 
   const renderBioSection = () => (
     <View style={styles.section}>
-      <Text style={[Typography.title2, styles.sectionTitle]}>Bio</Text>
+      <Text style={[Typography.title2, styles.sectionTitle, { color: theme.text }]}>Bio</Text>
       {bio ? (
-        <View style={styles.bioContainer}>
-          <Text style={[Typography.body, { color: 'rgba(255,255,255,0.8)', lineHeight: 24 }]}>{bio}</Text>
+        <View style={[styles.bioContainer, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
+          <Text style={[Typography.body, { color: theme.text, opacity: 0.8, lineHeight: 24 }]}>{bio}</Text>
           <TouchableOpacity style={styles.editBioButton} onPress={() => setBio('')}>
             <Ionicons name="pencil" size={14} color={Colors.primary} />
             <Text style={styles.editBioText}>Edit</Text>
           </TouchableOpacity>
         </View>
       ) : (
-        <View style={styles.emptyBioContainer}>
-          <Text style={[Typography.body, { color: Colors.textSecondary, marginBottom: 16, textAlign: 'center' }]}>
+        <View style={[styles.emptyBioContainer, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
+          <Text style={[Typography.body, { color: theme.textSecondary, marginBottom: 16, textAlign: 'center' }]}>
             You haven't written a bio yet. Want some help?
           </Text>
           <TouchableOpacity 
@@ -104,15 +99,15 @@ export default function ProfileScreen() {
   const renderInterests = () => (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Text style={[Typography.title2, styles.sectionTitle, { marginBottom: 0 }]}>Interests</Text>
+        <Text style={[Typography.title2, styles.sectionTitle, { color: theme.text, marginBottom: 0 }]}>Interests</Text>
         <TouchableOpacity>
           <Ionicons name="add-circle-outline" size={24} color={Colors.primary} />
         </TouchableOpacity>
       </View>
       <View style={styles.interestsGrid}>
         {INTERESTS.map((interest, index) => (
-          <View key={index} style={styles.interestChip}>
-            <Text style={styles.interestText}>{interest}</Text>
+          <View key={index} style={[styles.interestChip, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
+            <Text style={[styles.interestText, { color: theme.text }]}>{interest}</Text>
           </View>
         ))}
       </View>
@@ -122,7 +117,7 @@ export default function ProfileScreen() {
   const renderPhotosGallery = () => (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Text style={[Typography.title2, styles.sectionTitle, { marginBottom: 0 }]}>Photos</Text>
+        <Text style={[Typography.title2, styles.sectionTitle, { color: theme.text, marginBottom: 0 }]}>Photos</Text>
         <TouchableOpacity>
           <Text style={{ color: Colors.primary, fontWeight: 'bold' }}>Add</Text>
         </TouchableOpacity>
@@ -142,35 +137,35 @@ export default function ProfileScreen() {
 
   const renderSettings = () => (
     <View style={[styles.section, { marginBottom: 60 }]}>
-      <Text style={[Typography.title2, styles.sectionTitle]}>Settings</Text>
+      <Text style={[Typography.title2, styles.sectionTitle, { color: theme.text }]}>Settings</Text>
       
-      <View style={styles.settingsRow}>
+      <View style={[styles.settingsRow, { borderBottomColor: theme.border }]}>
         <View style={styles.settingsRowLeft}>
-          <Ionicons name="moon-outline" size={24} color="#FFF" />
-          <Text style={styles.settingsText}>Dark Mode</Text>
+          <Ionicons name="moon-outline" size={24} color={theme.text} />
+          <Text style={[styles.settingsText, { color: theme.text }]}>Dark Mode</Text>
         </View>
         <Switch
           value={isDarkMode}
-          onValueChange={setIsDarkMode}
-          trackColor={{ false: 'rgba(255,255,255,0.1)', true: Colors.primary }}
-          thumbColor={isDarkMode ? '#000' : '#f4f3f4'}
+          onValueChange={toggleTheme}
+          trackColor={{ false: theme.border, true: Colors.primary }}
+          thumbColor={isDarkMode ? '#000' : '#FFF'}
         />
       </View>
 
-      <TouchableOpacity style={styles.settingsRow}>
+      <TouchableOpacity style={[styles.settingsRow, { borderBottomColor: theme.border }]} onPress={() => navigation.navigate('Terms')}>
         <View style={styles.settingsRowLeft}>
-          <Ionicons name="document-text-outline" size={24} color="#FFF" />
-          <Text style={styles.settingsText}>Terms & Conditions</Text>
+          <Ionicons name="document-text-outline" size={24} color={theme.text} />
+          <Text style={[styles.settingsText, { color: theme.text }]}>Terms & Conditions</Text>
         </View>
-        <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+        <Ionicons name="chevron-forward" size={20} color={theme.textSecondary} />
       </TouchableOpacity>
       
-      <TouchableOpacity style={styles.settingsRow}>
+      <TouchableOpacity style={[styles.settingsRow, { borderBottomColor: theme.border }]} onPress={() => navigation.navigate('Privacy')}>
         <View style={styles.settingsRowLeft}>
-          <Ionicons name="shield-checkmark-outline" size={24} color="#FFF" />
-          <Text style={styles.settingsText}>Privacy Policy</Text>
+          <Ionicons name="shield-checkmark-outline" size={24} color={theme.text} />
+          <Text style={[styles.settingsText, { color: theme.text }]}>Privacy Policy</Text>
         </View>
-        <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
+        <Ionicons name="chevron-forward" size={20} color={theme.textSecondary} />
       </TouchableOpacity>
       
       <TouchableOpacity style={[styles.settingsRow, { borderBottomWidth: 0, marginTop: 24 }]}>
@@ -183,10 +178,16 @@ export default function ProfileScreen() {
   );
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { backgroundColor: theme.background }]}>
       <SafeAreaView style={styles.safe} edges={['top']}>
-        {renderHeader()}
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={[styles.header, { borderBottomColor: theme.border }]}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconButton}>
+            <Ionicons name="arrow-back" size={28} color={theme.text} />
+          </TouchableOpacity>
+          <Text style={[Typography.title2, { color: theme.text }]}>Profile</Text>
+          <View style={{ width: 28 }} />
+        </View>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {renderBasicInfo()}
           {renderBioSection()}
           {renderInterests()}
@@ -201,7 +202,6 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: Colors.textPrimary, // Force dark background
   },
   safe: {
     flex: 1,

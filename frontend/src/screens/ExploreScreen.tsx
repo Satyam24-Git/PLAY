@@ -7,6 +7,8 @@ import type { StackNavigationProp } from '@react-navigation/stack';
 import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { useResponsive } from '../hooks/useResponsive';
+import { useTheme } from '../theme/ThemeContext';
 
 type TabType = 'find' | 'coaching' | 'analytics';
 
@@ -21,7 +23,9 @@ const SPORTS = [
 const FILTERS = ['Distance < 5mi', 'Skill: Intermediate', 'Gender: Any', 'Time: Evening', 'Age: 20-30'];
 
 export default function ExploreScreen() {
+  const { isMobile } = useResponsive();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState<TabType>('find');
   const [loading, setLoading] = useState(true);
 
@@ -37,17 +41,17 @@ export default function ExploreScreen() {
       <TouchableOpacity style={styles.locationSelector}>
         <Ionicons name="location" size={28} color={Colors.primary} />
         <View style={styles.locationTextContainer}>
-          <Text style={[Typography.caption, { color: Colors.textSecondary }]}>Current Location</Text>
+          <Text style={[Typography.caption, { color: theme.textSecondary }]}>Current Location</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={[Typography.headline, { color: '#FFF', fontSize: 16 }]}>New York, USA</Text>
-            <Ionicons name="chevron-down" size={16} color={Colors.textSecondary} style={{ marginLeft: 4 }} />
+            <Text style={[Typography.headline, { color: theme.text, fontSize: 16 }]}>New York, USA</Text>
+            <Ionicons name="chevron-down" size={16} color={theme.textSecondary} style={{ marginLeft: 4 }} />
           </View>
         </View>
       </TouchableOpacity>
 
       <View style={styles.headerActions}>
         <TouchableOpacity style={styles.actionIcon}>
-          <Ionicons name="bag-handle-outline" size={28} color="#FFF" />
+          <Ionicons name="bag-handle-outline" size={28} color={theme.text} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.profileAvatar} onPress={() => navigation.navigate('Profile')}>
           <Ionicons name="person" size={20} color={Colors.primary} />
@@ -61,10 +65,10 @@ export default function ExploreScreen() {
       {(['find', 'coaching', 'analytics'] as TabType[]).map((tab) => (
         <TouchableOpacity
           key={tab}
-          style={[styles.tabButton, activeTab === tab && styles.tabButtonActive]}
+          style={[styles.tabButton, activeTab === tab && styles.tabButtonActive, { borderColor: theme.border }]}
           onPress={() => setActiveTab(tab)}
         >
-          <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>
+          <Text style={[styles.tabText, { color: theme.textSecondary }, activeTab === tab && styles.tabTextActive]}>
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
           </Text>
         </TouchableOpacity>
@@ -77,9 +81,9 @@ export default function ExploreScreen() {
       {/* Sports Scroll */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
         {SPORTS.map((sport, index) => (
-          <TouchableOpacity key={sport.id} style={[styles.sportChip, index === 0 && styles.sportChipActive]}>
-            <Ionicons name={sport.icon as any} size={18} color={index === 0 ? '#000' : '#FFF'} />
-            <Text style={[styles.sportText, index === 0 && styles.sportTextActive]}>{sport.name}</Text>
+          <TouchableOpacity key={sport.id} style={[styles.sportChip, { backgroundColor: theme.cardBackground, borderColor: theme.border }, index === 0 && styles.sportChipActive]}>
+            <Ionicons name={sport.icon as any} size={18} color={index === 0 ? '#000' : theme.text} />
+            <Text style={[styles.sportText, { color: theme.text }, index === 0 && styles.sportTextActive]}>{sport.name}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -87,34 +91,34 @@ export default function ExploreScreen() {
       {/* Filters Scroll */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll} style={{ marginTop: 16 }}>
         {FILTERS.map((filter, index) => (
-          <TouchableOpacity key={index} style={styles.filterChip}>
-            <Text style={styles.filterText}>{filter}</Text>
-            <Ionicons name="chevron-down" size={14} color={Colors.textSecondary} style={{ marginLeft: 4 }} />
+          <TouchableOpacity key={index} style={[styles.filterChip, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
+            <Text style={[styles.filterText, { color: theme.text }]}>{filter}</Text>
+            <Ionicons name="chevron-down" size={14} color={theme.textSecondary} style={{ marginLeft: 4 }} />
           </TouchableOpacity>
         ))}
       </ScrollView>
 
       {/* Player Requests */}
       <View style={styles.section}>
-        <Text style={[Typography.title2, { color: '#FFF', marginBottom: 16 }]}>Players Looking for Games</Text>
+        <Text style={[Typography.title2, { color: theme.text, marginBottom: 16 }]}>Players Looking for Games</Text>
         
         {[1, 2, 3].map((_, i) => (
-          <View key={i} style={styles.playerCard}>
+          <View key={i} style={[styles.playerCard, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
             <View style={styles.playerHeader}>
               <Image source={{ uri: `https://randomuser.me/api/portraits/men/${30 + i}.jpg` }} style={styles.playerAvatar} />
               <View style={styles.playerInfo}>
-                <Text style={[Typography.headline, { color: '#FFF' }]}>{['Alex', 'Jordan', 'Michael'][i]}</Text>
+                <Text style={[Typography.headline, { color: theme.text }]}>{['Alex', 'Jordan', 'Michael'][i]}</Text>
                 <Text style={[Typography.caption, { color: Colors.primary }]}>{['Football', 'Tennis', 'Basketball'][i]} • Intermediate</Text>
               </View>
-              <Text style={[Typography.caption, { color: Colors.textSecondary }]}>{i + 1}h ago</Text>
+              <Text style={[Typography.caption, { color: theme.textSecondary }]}>{i + 1}h ago</Text>
             </View>
-            <Text style={[Typography.body, { color: 'rgba(255,255,255,0.8)', marginBottom: 16 }]}>
+            <Text style={[Typography.body, { color: theme.text, marginBottom: 16 }]}>
               Looking for 2 more players to join our weekly casual game at {['Downtown Turf', 'Valley Court', 'Elite Arena'][i]}.
             </Text>
-            <View style={styles.playerActions}>
+            <View style={[styles.playerActions, { borderTopColor: theme.border }]}>
               <View style={styles.playerMeta}>
-                <Ionicons name="location-outline" size={16} color={Colors.textSecondary} />
-                <Text style={[Typography.caption, { color: Colors.textSecondary, marginLeft: 4 }]}>2.5 mi away</Text>
+                <Ionicons name="location-outline" size={16} color={theme.textSecondary} />
+                <Text style={[Typography.caption, { color: theme.textSecondary, marginLeft: 4 }]}>2.5 mi away</Text>
               </View>
               <TouchableOpacity style={styles.connectButton}>
                 <Text style={styles.connectButtonText}>Connect</Text>
@@ -128,14 +132,14 @@ export default function ExploreScreen() {
 
   const renderCoachingTab = () => (
     <View style={styles.tabContent}>
-      <Text style={[Typography.title2, { color: '#FFF', marginBottom: 16 }]}>Featured Coaches</Text>
+      <Text style={[Typography.title2, { color: theme.text, marginBottom: 16 }]}>Featured Coaches</Text>
       
       {[1, 2, 3].map((_, i) => (
-        <View key={i} style={styles.coachCard}>
+        <View key={i} style={[styles.coachCard, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
           <Image source={{ uri: `https://randomuser.me/api/portraits/women/${40 + i}.jpg` }} style={styles.coachImage} />
           <View style={styles.coachInfo}>
             <View style={styles.coachHeaderRow}>
-              <Text style={[Typography.headline, { color: '#FFF', fontSize: 18 }]}>{['Sarah Jenkins', 'Elena Rodriguez', 'Marcus Johnson'][i]}</Text>
+              <Text style={[Typography.headline, { color: theme.text, fontSize: 18 }]}>{['Sarah Jenkins', 'Elena Rodriguez', 'Marcus Johnson'][i]}</Text>
               <View style={styles.ratingBadge}>
                 <Ionicons name="star" size={12} color="#000" />
                 <Text style={styles.ratingText}>4.{9 - i}</Text>
@@ -144,12 +148,12 @@ export default function ExploreScreen() {
             <Text style={[Typography.body, { color: Colors.primary, marginBottom: 8 }]}>{['Pro Tennis Coach', 'Football Tactician', 'Basketball Skills'][i]}</Text>
             
             <View style={styles.coachMetaRow}>
-              <Ionicons name="location-outline" size={14} color={Colors.textSecondary} />
-              <Text style={[Typography.caption, { color: Colors.textSecondary, marginLeft: 4 }]}>{['Valley Complex', 'Downtown Field', 'Elite Arena'][i]}</Text>
+              <Ionicons name="location-outline" size={14} color={theme.textSecondary} />
+              <Text style={[Typography.caption, { color: theme.textSecondary, marginLeft: 4 }]}>{['Valley Complex', 'Downtown Field', 'Elite Arena'][i]}</Text>
             </View>
             
             <View style={styles.coachFooter}>
-              <Text style={[Typography.headline, { color: '#FFF' }]}>${50 + i * 15} <Text style={{ fontSize: 12, color: Colors.textSecondary, fontWeight: 'normal' }}>/hr</Text></Text>
+              <Text style={[Typography.headline, { color: theme.text }]}>${50 + i * 15} <Text style={{ fontSize: 12, color: theme.textSecondary, fontWeight: 'normal' }}>/hr</Text></Text>
               <TouchableOpacity style={styles.bookButton}>
                 <Text style={styles.bookButtonText}>Book Session</Text>
               </TouchableOpacity>
@@ -163,8 +167,8 @@ export default function ExploreScreen() {
   const renderAnalyticsTab = () => (
     <View style={styles.tabContent}>
       {/* Smartwatch Rings Mockup */}
-      <View style={styles.watchContainer}>
-        <Text style={[Typography.title2, { color: '#FFF', marginBottom: 24, textAlign: 'center' }]}>Today's Activity</Text>
+      <View style={[styles.watchContainer, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
+        <Text style={[Typography.title2, { color: theme.text, marginBottom: 24, textAlign: 'center' }]}>Today's Activity</Text>
         <View style={styles.ringsWrapper}>
           <View style={[styles.ring, styles.ringOuter]}>
             <View style={[styles.ring, styles.ringMiddle]}>
@@ -176,47 +180,47 @@ export default function ExploreScreen() {
         </View>
         <View style={styles.metricsRow}>
           <View style={styles.metricItem}>
-            <Text style={styles.metricValue}>840</Text>
-            <Text style={styles.metricLabel}>KCAL</Text>
+            <Text style={[styles.metricValue, { color: theme.text }]}>840</Text>
+            <Text style={[styles.metricLabel, { color: theme.textSecondary }]}>KCAL</Text>
           </View>
           <View style={styles.metricItem}>
-            <Text style={styles.metricValue}>124</Text>
-            <Text style={styles.metricLabel}>BPM</Text>
+            <Text style={[styles.metricValue, { color: theme.text }]}>124</Text>
+            <Text style={[styles.metricLabel, { color: theme.textSecondary }]}>BPM</Text>
           </View>
           <View style={styles.metricItem}>
-            <Text style={styles.metricValue}>2.4</Text>
-            <Text style={styles.metricLabel}>HOURS</Text>
+            <Text style={[styles.metricValue, { color: theme.text }]}>2.4</Text>
+            <Text style={[styles.metricLabel, { color: theme.textSecondary }]}>HOURS</Text>
           </View>
         </View>
       </View>
 
       {/* Stats Grid */}
       <View style={styles.statsGrid}>
-        <View style={styles.statBox}>
+        <View style={[styles.statBox, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
           <Ionicons name="time-outline" size={24} color={Colors.primary} />
-          <Text style={styles.statBoxValue}>124h</Text>
-          <Text style={styles.statBoxLabel}>Total Time Played</Text>
+          <Text style={[styles.statBoxValue, { color: theme.text }]}>124h</Text>
+          <Text style={[styles.statBoxLabel, { color: theme.textSecondary }]}>Total Time Played</Text>
         </View>
-        <View style={styles.statBox}>
+        <View style={[styles.statBox, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
           <Ionicons name="map-outline" size={24} color={Colors.primary} />
-          <Text style={styles.statBoxValue}>12</Text>
-          <Text style={styles.statBoxLabel}>Venues Explored</Text>
+          <Text style={[styles.statBoxValue, { color: theme.text }]}>12</Text>
+          <Text style={[styles.statBoxLabel, { color: theme.textSecondary }]}>Venues Explored</Text>
         </View>
       </View>
 
       {/* Rewards Carousel */}
       <View style={styles.section}>
-        <Text style={[Typography.title2, { color: '#FFF', marginBottom: 16 }]}>Unlock Freebies</Text>
+        <Text style={[Typography.title2, { color: theme.text, marginBottom: 16 }]}>Unlock Freebies</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
           {[
             { name: 'PPLAY Bottle', points: '1,500 pts', image: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80' },
             { name: 'Pro Towel', points: '2,000 pts', image: 'https://images.unsplash.com/photo-1610935591850-9a3bf14810c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80' },
             { name: 'Sports Bag', points: '5,000 pts', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80' }
           ].map((item, index) => (
-            <View key={index} style={styles.rewardCard}>
+            <View key={index} style={[styles.rewardCard, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
               <Image source={{ uri: item.image }} style={styles.rewardImage} />
               <View style={styles.rewardInfo}>
-                <Text style={[Typography.headline, { color: '#FFF' }]}>{item.name}</Text>
+                <Text style={[Typography.headline, { color: theme.text }]}>{item.name}</Text>
                 <TouchableOpacity style={styles.redeemButton}>
                   <Text style={styles.redeemButtonText}>{item.points}</Text>
                 </TouchableOpacity>
@@ -229,7 +233,7 @@ export default function ExploreScreen() {
   );
 
   return (
-    <View style={[styles.root, { backgroundColor: Colors.textPrimary }]}>
+    <View style={[styles.root, { backgroundColor: theme.background }]}>
       <SafeAreaView style={styles.safe} edges={['top']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {renderHeader()}
@@ -294,10 +298,11 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.1)',
     borderRadius: 30,
     padding: 4,
     marginBottom: 24,
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   tabButton: {
     flex: 1,
@@ -324,13 +329,11 @@ const styles = StyleSheet.create({
   sportChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 24,
     marginRight: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
   },
   sportChipActive: {
     backgroundColor: Colors.primary,
@@ -352,7 +355,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
   },
   filterText: {
     color: '#FFF',
@@ -362,12 +364,10 @@ const styles = StyleSheet.create({
     marginTop: 32,
   },
   playerCard: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: 20,
     padding: 20,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
   },
   playerHeader: {
     flexDirection: 'row',
@@ -408,12 +408,10 @@ const styles = StyleSheet.create({
   },
   coachCard: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: 20,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
   },
   coachImage: {
     width: 90,
@@ -466,12 +464,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   watchContainer: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: 30,
     padding: 32,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
   },
   ringsWrapper: {
     width: 200,
@@ -537,11 +533,9 @@ const styles = StyleSheet.create({
   },
   statBox: {
     width: '48%',
-    backgroundColor: 'rgba(255,255,255,0.05)',
     padding: 20,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
   },
   statBoxValue: {
     color: '#FFF',
@@ -556,12 +550,10 @@ const styles = StyleSheet.create({
   },
   rewardCard: {
     width: 240,
-    backgroundColor: 'rgba(255,255,255,0.05)',
     borderRadius: 20,
     marginRight: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
   },
   rewardImage: {
     width: '100%',

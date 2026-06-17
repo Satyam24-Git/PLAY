@@ -8,6 +8,7 @@ import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { useResponsive } from '../hooks/useResponsive';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { useTheme } from '../theme/ThemeContext';
 
 // Types for backend compatibility
 interface Advertisement {
@@ -50,6 +51,7 @@ const SPORTS = [
 export default function HomeScreen() {
   const { isMobile } = useResponsive();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const { theme } = useTheme();
 
   // State for backend data
   const [ads, setAds] = useState<Advertisement[]>([]);
@@ -107,17 +109,17 @@ export default function HomeScreen() {
       <TouchableOpacity style={styles.locationSelector}>
         <Ionicons name="location" size={28} color={Colors.primary} />
         <View style={styles.locationTextContainer}>
-          <Text style={[Typography.caption, { color: Colors.textSecondary }]}>Current Location</Text>
+          <Text style={[Typography.caption, { color: theme.textSecondary }]}>Current Location</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={[Typography.headline, { color: '#FFF', fontSize: 16 }]}>New York, USA</Text>
-            <Ionicons name="chevron-down" size={16} color={Colors.textSecondary} style={{ marginLeft: 4 }} />
+            <Text style={[Typography.headline, { color: theme.text, fontSize: 16 }]}>New York, USA</Text>
+            <Ionicons name="chevron-down" size={16} color={theme.textSecondary} style={{ marginLeft: 4 }} />
           </View>
         </View>
       </TouchableOpacity>
 
       <View style={styles.headerActions}>
         <TouchableOpacity style={styles.actionIcon}>
-          <Ionicons name="bag-handle-outline" size={28} color="#FFF" />
+          <Ionicons name="bag-handle-outline" size={28} color={theme.text} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.profileAvatar} onPress={() => navigation.navigate('Profile')}>
           <Ionicons name="person" size={20} color={Colors.primary} />
@@ -149,23 +151,23 @@ export default function HomeScreen() {
     return (
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Upcoming Bookings</Text>
+          <Text style={[Typography.title2, styles.sectionTitle, { color: theme.text }]}>Upcoming Bookings</Text>
         </View>
         {bookings.map((booking) => (
-          <View key={booking.id} style={styles.bookingCard}>
+          <View key={booking.id} style={[styles.bookingCard, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
             <View style={styles.bookingHeader}>
               <Image source={{ uri: booking.image }} style={styles.bookingImage} />
               <View style={{ flex: 1, marginLeft: 12 }}>
-                <Text style={[Typography.headline, { color: Colors.textPrimary, fontSize: 16 }]}>{booking.title}</Text>
-                <Text style={[Typography.caption, { color: Colors.textSecondary }]}>{booking.time}</Text>
+                <Text style={[Typography.headline, { color: theme.text, fontSize: 16 }]}>{booking.title}</Text>
+                <Text style={[Typography.caption, { color: theme.textSecondary }]}>{booking.time}</Text>
               </View>
               <TouchableOpacity>
-                <Ionicons name="ellipsis-horizontal" size={20} color={Colors.textSecondary} />
+                <Ionicons name="ellipsis-horizontal" size={20} color={theme.textSecondary} />
               </TouchableOpacity>
             </View>
-            <View style={styles.bookingDetails}>
-              <Ionicons name="location-outline" size={16} color={Colors.textSecondary} />
-              <Text style={[Typography.caption, { color: Colors.textSecondary, marginLeft: 6 }]}>{booking.location}</Text>
+            <View style={[styles.bookingDetails, { borderTopColor: theme.border }]}>
+              <Ionicons name="location-outline" size={16} color={theme.textSecondary} />
+              <Text style={[Typography.caption, { color: theme.textSecondary, marginLeft: 6 }]}>{booking.location}</Text>
             </View>
           </View>
         ))}
@@ -179,20 +181,20 @@ export default function HomeScreen() {
     return (
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Your Stats</Text>
+          <Text style={[Typography.title2, styles.sectionTitle, { color: theme.text }]}>Your Stats</Text>
         </View>
         <View style={styles.analyticsRow}>
-          <View style={styles.statCard}>
+          <View style={[styles.statCard, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
             <Text style={styles.statValue}>{userStats.matches}</Text>
-            <Text style={styles.statLabel}>Matches</Text>
+            <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Matches</Text>
           </View>
-          <View style={styles.statCard}>
+          <View style={[styles.statCard, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
             <Text style={styles.statValue}>{userStats.wins}</Text>
-            <Text style={styles.statLabel}>Wins</Text>
+            <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Wins</Text>
           </View>
-          <View style={styles.statCard}>
+          <View style={[styles.statCard, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
             <Text style={styles.statValue}>{userStats.winRate}%</Text>
-            <Text style={styles.statLabel}>Win Rate</Text>
+            <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Win Rate</Text>
           </View>
         </View>
       </View>
@@ -202,13 +204,13 @@ export default function HomeScreen() {
   const renderSportsBar = () => (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Categories</Text>
+        <Text style={[Typography.title2, styles.sectionTitle, { color: theme.text }]}>Categories</Text>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sportsScroll}>
         {SPORTS.map((sport, index) => (
-          <TouchableOpacity key={sport.id} style={[styles.sportChip, index === 0 && styles.sportChipActive]}>
-            <Ionicons name={sport.icon as any} size={18} color={index === 0 ? '#FFF' : Colors.textPrimary} />
-            <Text style={[styles.sportText, index === 0 && styles.sportTextActive]}>{sport.name}</Text>
+          <TouchableOpacity key={sport.id} style={[styles.sportChip, { backgroundColor: theme.cardBackground, borderColor: theme.border }, index === 0 && styles.sportChipActive]}>
+            <Ionicons name={sport.icon as any} size={18} color={index === 0 ? '#FFF' : theme.text} />
+            <Text style={[styles.sportText, { color: theme.text }, index === 0 && styles.sportTextActive]}>{sport.name}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -221,22 +223,22 @@ export default function HomeScreen() {
     return (
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Popular Venues</Text>
+          <Text style={[Typography.title2, styles.sectionTitle, { color: theme.text }]}>Popular Venues</Text>
           <TouchableOpacity onPress={() => setViewAllSection('venues')}>
             <Text style={styles.seeAllText}>See All</Text>
           </TouchableOpacity>
         </View>
         {venues.slice(0, 3).map((venue) => (
-          <TouchableOpacity key={venue.id} style={styles.venueCard}>
+          <TouchableOpacity key={venue.id} style={[styles.venueCard, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
             <Image source={{ uri: venue.image }} style={styles.venueImage} />
             <View style={styles.venueInfo}>
-              <Text style={[Typography.headline, { color: Colors.textPrimary, fontSize: 16 }]}>{venue.name}</Text>
+              <Text style={[Typography.headline, { color: theme.text, fontSize: 16 }]}>{venue.name}</Text>
               <View style={styles.venueMetaRow}>
-                <Ionicons name="location-outline" size={14} color={Colors.textSecondary} />
-                <Text style={[Typography.caption, { color: Colors.textSecondary, marginLeft: 4 }]}>{venue.location}</Text>
-                <View style={styles.dot} />
+                <Ionicons name="location-outline" size={14} color={theme.textSecondary} />
+                <Text style={[Typography.caption, { color: theme.textSecondary, marginLeft: 4 }]}>{venue.location}</Text>
+                <View style={[styles.dot, { backgroundColor: theme.textSecondary }]} />
                 <Ionicons name="star" size={14} color="#FFD700" />
-                <Text style={[Typography.caption, { color: Colors.textSecondary, marginLeft: 4 }]}>{venue.rating}</Text>
+                <Text style={[Typography.caption, { color: theme.textSecondary, marginLeft: 4 }]}>{venue.rating}</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -251,20 +253,20 @@ export default function HomeScreen() {
         <View style={[styles.sectionHeader, { justifyContent: 'flex-start' }]}>
           <TouchableOpacity onPress={() => setViewAllSection(null)} style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Ionicons name="arrow-back" size={24} color={Colors.primary} />
-            <Text style={[Typography.title2, { color: '#FFF', marginLeft: 8 }]}>All Venues</Text>
+            <Text style={[Typography.title2, { color: theme.text, marginLeft: 8 }]}>All Venues</Text>
           </TouchableOpacity>
         </View>
         {venues.map((venue) => (
-          <TouchableOpacity key={venue.id} style={styles.venueCard}>
+          <TouchableOpacity key={venue.id} style={[styles.venueCard, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
             <Image source={{ uri: venue.image }} style={styles.venueImage} />
             <View style={styles.venueInfo}>
-              <Text style={[Typography.headline, { color: Colors.textPrimary, fontSize: 16 }]}>{venue.name}</Text>
+              <Text style={[Typography.headline, { color: theme.text, fontSize: 16 }]}>{venue.name}</Text>
               <View style={styles.venueMetaRow}>
-                <Ionicons name="location-outline" size={14} color={Colors.textSecondary} />
-                <Text style={[Typography.caption, { color: Colors.textSecondary, marginLeft: 4 }]}>{venue.location}</Text>
-                <View style={styles.dot} />
+                <Ionicons name="location-outline" size={14} color={theme.textSecondary} />
+                <Text style={[Typography.caption, { color: theme.textSecondary, marginLeft: 4 }]}>{venue.location}</Text>
+                <View style={[styles.dot, { backgroundColor: theme.textSecondary }]} />
                 <Ionicons name="star" size={14} color="#FFD700" />
-                <Text style={[Typography.caption, { color: Colors.textSecondary, marginLeft: 4 }]}>{venue.rating}</Text>
+                <Text style={[Typography.caption, { color: theme.textSecondary, marginLeft: 4 }]}>{venue.rating}</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -275,14 +277,14 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.root, styles.centerAll, { backgroundColor: Colors.textPrimary }]}>
+      <View style={[styles.root, styles.centerAll, { backgroundColor: theme.background }]}>
         <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
 
   return (
-    <View style={[styles.root, { backgroundColor: Colors.textPrimary }]}>
+    <View style={[styles.root, { backgroundColor: theme.background }]}>
       <SafeAreaView style={styles.safe} edges={['top']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {renderHeader()}
@@ -362,7 +364,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   adOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'flex-end',
     padding: 16,
@@ -395,7 +397,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   bookingCard: {
-    backgroundColor: Colors.cardBackground,
     borderRadius: 16,
     padding: 16,
     shadowColor: Colors.cardShadow,
@@ -404,6 +405,7 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 4,
     marginBottom: 12,
+    borderWidth: 1,
   },
   bookingHeader: {
     flexDirection: 'row',
@@ -420,7 +422,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)',
   },
   analyticsRow: {
     flexDirection: 'row',
@@ -428,7 +429,6 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: Colors.cardBackground,
     borderRadius: 16,
     padding: 16,
     marginHorizontal: 4,
@@ -438,6 +438,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 8,
     elevation: 3,
+    borderWidth: 1,
   },
   statValue: {
     fontSize: 24,
@@ -456,7 +457,6 @@ const styles = StyleSheet.create({
   sportChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.cardBackground,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 24,
@@ -466,6 +466,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 6,
     elevation: 2,
+    borderWidth: 1,
   },
   sportChipActive: {
     backgroundColor: Colors.primary,
@@ -479,7 +480,6 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   venueCard: {
-    backgroundColor: Colors.cardBackground,
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 16,
@@ -489,6 +489,7 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 4,
     flexDirection: 'row',
+    borderWidth: 1,
   },
   venueImage: {
     width: 100,

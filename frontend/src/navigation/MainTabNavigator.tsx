@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
+import { useTheme } from '../theme/ThemeContext';
 
 import HomeScreen from '../screens/HomeScreen';
 import PlayScreen from '../screens/PlayScreen';
@@ -13,6 +14,8 @@ import ExploreScreen from '../screens/ExploreScreen';
 const Tab = createBottomTabNavigator();
 
 export default function MainTabNavigator() {
+  const { theme, isDarkMode } = useTheme();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -33,8 +36,12 @@ export default function MainTabNavigator() {
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.textTertiary,
-        tabBarStyle: [styles.tabBar, { paddingBottom: Platform.OS === 'ios' ? 20 : 0 }],
+        tabBarInactiveTintColor: theme.textSecondary,
+        tabBarStyle: [styles.tabBar, { 
+          paddingBottom: Platform.OS === 'ios' ? 20 : 0,
+          backgroundColor: Platform.OS === 'web' ? theme.navBackground : 'transparent',
+          borderColor: theme.border,
+        }],
         tabBarItemStyle: {
           justifyContent: 'center',
           alignItems: 'center',
@@ -48,7 +55,7 @@ export default function MainTabNavigator() {
           if (Platform.OS === 'web') return null;
           return (
             <BlurView
-              tint="dark"
+              tint={isDarkMode ? "dark" : "light"}
               intensity={80}
               style={StyleSheet.absoluteFill}
             />
@@ -69,11 +76,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderTopWidth: 0,
     elevation: 0,
-    backgroundColor: Platform.OS === 'web' ? 'rgba(0, 0, 0, 0.85)' : 'transparent',
     ...(Platform.OS === 'web' && {
       backdropFilter: 'blur(16px)',
       borderWidth: 1,
-      borderColor: 'rgba(255, 255, 255, 0.1)',
     } as any),
     bottom: 24,
     left: 20,

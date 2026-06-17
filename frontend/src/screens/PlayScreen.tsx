@@ -8,6 +8,7 @@ import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { useResponsive } from '../hooks/useResponsive';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { useTheme } from '../theme/ThemeContext';
 
 // Types for backend compatibility
 interface Advertisement {
@@ -38,6 +39,21 @@ interface PreviousBooking {
   image: string;
 }
 
+interface Match {
+  id: string;
+  title: string;
+  sport: string;
+  time: string;
+  location: string;
+  playersNeeded: number;
+  playersJoined: number;
+  players: number;
+  maxPlayers: number;
+  level: string;
+  organizer: string;
+  organizerAvatar: string;
+}
+
 const SPORTS = [
   { id: '1', name: 'Football', icon: 'football' },
   { id: '2', name: 'Basketball', icon: 'basketball' },
@@ -49,12 +65,14 @@ const SPORTS = [
 export default function PlayScreen() {
   const { isMobile } = useResponsive();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const { theme } = useTheme();
 
   // State for backend data
   const [ads, setAds] = useState<Advertisement[]>([]);
   const [venues, setVenues] = useState<Venue[]>([]);
   const [filters, setFilters] = useState<Filter[]>([]);
   const [previousBookings, setPreviousBookings] = useState<PreviousBooking[]>([]);
+  const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Simulate API Call
@@ -90,10 +108,16 @@ export default function PlayScreen() {
           { id: '3', name: 'City Hoops Center', location: 'Uptown', rating: 4.9, image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
         ];
 
+        const mockMatches: Match[] = [
+          { id: '1', title: 'Sunday Pickup Game', sport: 'Football', time: 'Today, 6:00 PM', location: 'Downtown Turf', playersNeeded: 2, playersJoined: 10, players: 10, maxPlayers: 12, level: 'Intermediate', organizer: 'John Doe', organizerAvatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
+          { id: '2', title: 'Casual Hoops', sport: 'Basketball', time: 'Tomorrow, 5:00 PM', location: 'City Hoops', playersNeeded: 3, playersJoined: 7, players: 7, maxPlayers: 10, level: 'All Levels', organizer: 'Jane Smith', organizerAvatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
+        ];
+
         setAds(mockAds);
         setFilters(mockFilters);
         setPreviousBookings(mockPrevious);
         setVenues(mockVenues);
+        setMatches(mockMatches);
       } catch (error) {
         console.error("Failed to load play screen data", error);
       } finally {
@@ -109,17 +133,17 @@ export default function PlayScreen() {
       <TouchableOpacity style={styles.locationSelector}>
         <Ionicons name="location" size={28} color={Colors.primary} />
         <View style={styles.locationTextContainer}>
-          <Text style={[Typography.caption, { color: Colors.textSecondary }]}>Current Location</Text>
+          <Text style={[Typography.caption, { color: theme.textSecondary }]}>Current Location</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={[Typography.headline, { color: '#FFF', fontSize: 16 }]}>New York, USA</Text>
-            <Ionicons name="chevron-down" size={16} color={Colors.textSecondary} style={{ marginLeft: 4 }} />
+            <Text style={[Typography.headline, { color: theme.text, fontSize: 16 }]}>New York, USA</Text>
+            <Ionicons name="chevron-down" size={16} color={theme.textSecondary} style={{ marginLeft: 4 }} />
           </View>
         </View>
       </TouchableOpacity>
 
       <View style={styles.headerActions}>
         <TouchableOpacity style={styles.actionIcon}>
-          <Ionicons name="bag-handle-outline" size={28} color="#FFF" />
+          <Ionicons name="bag-handle-outline" size={28} color={theme.text} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.profileAvatar} onPress={() => navigation.navigate('Profile')}>
           <Ionicons name="person" size={20} color={Colors.primary} />
@@ -152,46 +176,66 @@ export default function PlayScreen() {
     );
   };
 
-  const renderSportsBar = () => (
+  const renderMatches = () => (
     <View style={styles.section}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sportsScroll}>
-        {SPORTS.map((sport, index) => (
-          <TouchableOpacity key={sport.id} style={[styles.sportChip, index === 0 && styles.sportChipActive]}>
-            <Ionicons name={sport.icon as any} size={18} color={index === 0 ? '#FFF' : Colors.textPrimary} />
-            <Text style={[styles.sportText, index === 0 && styles.sportTextActive]}>{sport.name}</Text>
+      <View style={styles.sectionHeader}>
+        <Text style={[Typography.title2, styles.sectionTitle, { color: theme.text }]}>Matches</Text>
+        <TouchableOpacity>
+          <Ionicons name="options-outline" size={24} color={theme.text} />
+        </TouchableOpacity>
+      </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
+        {['All', 'Football', 'Tennis', 'Basketball', 'Padel'].map((sport, index) => (
+          <TouchableOpacity key={sport} style={[styles.filterChip, { backgroundColor: index === 0 ? Colors.primary : theme.cardBackground, borderColor: theme.border }]}>
+            <Text style={[styles.filterText, { color: index === 0 ? '#FFF' : theme.text }]}>{sport}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
+      <View style={styles.matchesList}>
+        {matches.map((match) => (
+          <View key={match.id} style={[styles.matchCard, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
+            <View style={styles.matchHeader}>
+              <View style={styles.sportBadge}>
+                <Ionicons name="football" size={12} color="#000" />
+                <Text style={styles.sportBadgeText}>{match.sport}</Text>
+              </View>
+              <Text style={[Typography.caption, { color: theme.textSecondary }]}>{match.time}</Text>
+            </View>
+            <Text style={[Typography.headline, { color: theme.text, fontSize: 18, marginBottom: 8 }]}>{match.title}</Text>
+            <View style={styles.matchMetaRow}>
+              <Ionicons name="location-outline" size={14} color={theme.textSecondary} />
+              <Text style={[Typography.caption, { color: theme.textSecondary, marginLeft: 4 }]}>{match.location}</Text>
+              <View style={[styles.dot, { backgroundColor: theme.textSecondary }]} />
+              <Ionicons name="people-outline" size={14} color={theme.textSecondary} />
+              <Text style={[Typography.caption, { color: theme.textSecondary, marginLeft: 4 }]}>{match.players}/{match.maxPlayers} Players</Text>
+            </View>
+            <View style={[styles.matchFooter, { borderTopColor: theme.border }]}>
+              <View style={styles.organizerRow}>
+                <Image source={{ uri: match.organizerAvatar }} style={styles.organizerAvatar} />
+                <Text style={[Typography.caption, { color: theme.text, marginLeft: 8 }]}>Organized by {match.organizer}</Text>
+              </View>
+              <TouchableOpacity style={styles.joinButton}>
+                <Text style={styles.joinButtonText}>Join</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))}
+      </View>
     </View>
   );
-
-  const renderFilters = () => {
-    if (!filters.length) return null;
-    return (
-      <View style={styles.sectionSmall}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filtersScroll}>
-          {filters.map((filter) => (
-            <TouchableOpacity key={filter.id} style={[styles.filterChip, filter.active && styles.filterChipActive]}>
-              <Text style={[styles.filterText, filter.active && styles.filterTextActive]}>{filter.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-    );
-  };
 
   const renderPreviousBookings = () => {
     if (!previousBookings.length) return null;
     return (
       <View style={styles.section}>
-        <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Play it again</Text>
+        <Text style={[Typography.title2, styles.sectionTitle, { color: theme.text }]}>Play it again</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.previousScroll}>
           {previousBookings.map((booking) => (
-            <View key={booking.id} style={styles.previousCard}>
+            <View key={booking.id} style={[styles.previousCard, { backgroundColor: theme.cardBackground }]}>
               <Image source={{ uri: booking.image }} style={styles.previousImage} />
               <View style={styles.previousInfo}>
-                <Text style={[Typography.headline, { color: Colors.textPrimary, fontSize: 16 }]} numberOfLines={1}>{booking.venueName}</Text>
-                <Text style={[Typography.caption, { color: Colors.textSecondary, marginBottom: 12 }]}>{booking.date}</Text>
+                <Text style={[Typography.headline, { color: theme.text, fontSize: 16 }]} numberOfLines={1}>{booking.venueName}</Text>
+                <Text style={[Typography.caption, { color: theme.textSecondary, marginBottom: 12 }]}>{booking.date}</Text>
                 <TouchableOpacity style={styles.rebookButton}>
                   <Text style={styles.rebookText}>Rebook</Text>
                 </TouchableOpacity>
@@ -208,19 +252,19 @@ export default function PlayScreen() {
     return (
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Available Venues</Text>
+          <Text style={[Typography.title2, styles.sectionTitle, { color: theme.text }]}>Available Venues</Text>
         </View>
         {venues.map((venue) => (
-          <TouchableOpacity key={venue.id} style={styles.venueCard}>
+          <TouchableOpacity key={venue.id} style={[styles.venueCard, { backgroundColor: theme.cardBackground }]}>
             <Image source={{ uri: venue.image }} style={styles.venueImage} />
             <View style={styles.venueInfo}>
-              <Text style={[Typography.headline, { color: Colors.textPrimary, fontSize: 16 }]}>{venue.name}</Text>
+              <Text style={[Typography.headline, { color: theme.text, fontSize: 16 }]}>{venue.name}</Text>
               <View style={styles.venueMetaRow}>
-                <Ionicons name="location-outline" size={14} color={Colors.textSecondary} />
-                <Text style={[Typography.caption, { color: Colors.textSecondary, marginLeft: 4 }]}>{venue.location}</Text>
-                <View style={styles.dot} />
+                <Ionicons name="location-outline" size={14} color={theme.textSecondary} />
+                <Text style={[Typography.caption, { color: theme.textSecondary, marginLeft: 4 }]}>{venue.location}</Text>
+                <View style={[styles.dot, { backgroundColor: theme.textSecondary }]} />
                 <Ionicons name="star" size={14} color="#FFD700" />
-                <Text style={[Typography.caption, { color: Colors.textSecondary, marginLeft: 4 }]}>{venue.rating}</Text>
+                <Text style={[Typography.caption, { color: theme.textSecondary, marginLeft: 4 }]}>{venue.rating}</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -231,21 +275,20 @@ export default function PlayScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.root, styles.centerAll, { backgroundColor: Colors.textPrimary }]}>
+      <View style={[styles.root, styles.centerAll, { backgroundColor: theme.background }]}>
         <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
 
   return (
-    <View style={[styles.root, { backgroundColor: Colors.textPrimary }]}>
+    <View style={[styles.root, { backgroundColor: theme.background }]}>
       <SafeAreaView style={styles.safe} edges={['top']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {renderHeader()}
           {renderSearchBar()}
           {renderAdvertisement()}
-          {renderSportsBar()}
-          {renderFilters()}
+          {renderMatches()}
           {renderPreviousBookings()}
           {renderVenues()}
           <View style={styles.bottomSpacer} />
@@ -300,14 +343,12 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.cardBackground,
     borderRadius: 16,
     paddingHorizontal: 16,
     paddingVertical: 14,
     marginBottom: 24,
-    shadowColor: Colors.cardShadow,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
+    shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 3,
   },
@@ -315,14 +356,10 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   searchPlaceholder: {
-    color: Colors.textSecondary,
     fontSize: 15,
   },
   section: {
     marginBottom: 28,
-  },
-  sectionSmall: {
-    marginBottom: 20,
   },
   sectionTitle: {
     marginBottom: 16,
@@ -349,7 +386,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   adOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'flex-end',
     padding: 16,
@@ -364,69 +401,92 @@ const styles = StyleSheet.create({
     color: '#E0E0E0',
     fontSize: 13,
   },
-  sportsScroll: {
-    paddingRight: 20,
-  },
-  sportChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.cardBackground,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 24,
-    marginRight: 12,
-    shadowColor: Colors.cardShadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  sportChipActive: {
-    backgroundColor: Colors.primary,
-  },
-  sportText: {
-    marginLeft: 8,
-    fontWeight: '600',
-    color: Colors.textPrimary,
-  },
-  sportTextActive: {
-    color: '#FFF',
-  },
-  filtersScroll: {
-    paddingRight: 20,
+  horizontalScroll: {
+    paddingBottom: 16,
   },
   filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 20,
+    marginRight: 12,
     borderWidth: 1,
-    borderColor: Colors.border,
-    marginRight: 10,
-    backgroundColor: 'transparent',
-  },
-  filterChipActive: {
-    backgroundColor: Colors.primaryMuted,
-    borderColor: Colors.primary,
   },
   filterText: {
     fontWeight: '500',
-    color: Colors.textSecondary,
   },
-  filterTextActive: {
-    color: Colors.primaryDark,
+  matchesList: {
+    gap: 16,
+  },
+  matchCard: {
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 1,
+  },
+  matchHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  sportBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFD700',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  sportBadgeText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    marginLeft: 4,
+  },
+  matchMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  matchFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 16,
+    borderTopWidth: 1,
+  },
+  organizerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  organizerAvatar: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+  },
+  joinButton: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 12,
+  },
+  joinButtonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
   },
   previousScroll: {
     paddingRight: 20,
   },
   previousCard: {
     width: 220,
-    backgroundColor: Colors.cardBackground,
     borderRadius: 16,
     overflow: 'hidden',
     marginRight: 16,
-    shadowColor: Colors.cardShadow,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1,
+    shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 4,
   },
@@ -448,13 +508,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   venueCard: {
-    backgroundColor: Colors.cardBackground,
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 16,
-    shadowColor: Colors.cardShadow,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1,
+    shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 4,
     flexDirection: 'row',

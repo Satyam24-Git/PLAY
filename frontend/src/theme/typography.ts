@@ -23,6 +23,20 @@ export const Typography = StyleSheet.create({
     color: Colors.textPrimary,
     fontFamily: FontFamily.bold,
   },
+  title1: {
+    fontSize: 28,
+    fontWeight: '700',
+    letterSpacing: 0.36,
+    color: Colors.textPrimary,
+    fontFamily: FontFamily.bold,
+  },
+  title2: {
+    fontSize: 22,
+    fontWeight: '600',
+    letterSpacing: 0.35,
+    color: Colors.textPrimary,
+    fontFamily: FontFamily.semibold,
+  },
   headline: {
     fontSize: 20,
     fontWeight: '600',

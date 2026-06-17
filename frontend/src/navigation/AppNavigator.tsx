@@ -7,9 +7,13 @@ import OTPScreen from '../screens/OTPScreen';
 import InterestsScreen from '../screens/InterestsScreen';
 import AllSetScreen from '../screens/AllSetScreen';
 import MainTabNavigator from './MainTabNavigator';
+import TermsScreen from '../screens/TermsScreen';
+import PrivacyScreen from '../screens/PrivacyScreen';
 import WebLayoutWrapper from '../components/WebLayoutWrapper';
 import ProfileScreen from '../screens/ProfileScreen';
 import { useResponsive } from '../hooks/useResponsive';
+import { ThemeProvider, useTheme } from '../theme/ThemeContext';
+import { DefaultTheme, DarkTheme } from '@react-navigation/native';
 
 export type RootStackParamList = {
   Email: undefined;
@@ -18,6 +22,8 @@ export type RootStackParamList = {
   AllSet: undefined;
   Main: undefined;
   Profile: undefined;
+  Terms: undefined;
+  Privacy: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -60,9 +66,19 @@ const MainLayout = () => {
   );
 };
 
-export default function AppNavigator() {
+const NavigationWrapper = () => {
+  const { theme, isDarkMode } = useTheme();
+
+  const navTheme = {
+    ...(isDarkMode ? DarkTheme : DefaultTheme),
+    colors: {
+      ...(isDarkMode ? DarkTheme.colors : DefaultTheme.colors),
+      background: theme.background,
+    },
+  };
+
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navTheme}>
       <Stack.Navigator
         initialRouteName="Email"
         screenOptions={{
@@ -90,8 +106,18 @@ export default function AppNavigator() {
         <Stack.Screen name="OTP" component={OTPScreen} />
         <Stack.Screen name="Interests" component={InterestsScreen} />
         <Stack.Screen name="AllSet" component={AllSetScreen} />
+        <Stack.Screen name="Terms" component={TermsScreen} />
+        <Stack.Screen name="Privacy" component={PrivacyScreen} />
         <Stack.Screen name="Main" component={MainLayout} />
       </Stack.Navigator>
     </NavigationContainer>
+  );
+};
+
+export default function AppNavigator() {
+  return (
+    <ThemeProvider>
+      <NavigationWrapper />
+    </ThemeProvider>
   );
 }

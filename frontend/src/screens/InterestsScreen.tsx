@@ -358,8 +358,8 @@ export default function InterestsScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  bgImage: { ...StyleSheet.absoluteFillObject, width: '100%', height: '100%' },
-  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.52)' },
+  bgImage: { ...StyleSheet.absoluteFill, width: '100%', height: '100%' },
+  overlay: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.52)' },
   safe: { flex: 1 },
   scroll: { flex: 1 },
   outer: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },

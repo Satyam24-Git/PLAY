@@ -5,6 +5,7 @@ import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { useResponsive } from '../hooks/useResponsive';
 import ScreenBackground from './ScreenBackground';
+import { useTheme } from '../theme/ThemeContext';
 
 interface WebLayoutWrapperProps {
   children: React.ReactNode;
@@ -12,6 +13,7 @@ interface WebLayoutWrapperProps {
 
 export default function WebLayoutWrapper({ children }: WebLayoutWrapperProps) {
   const { isMobile } = useResponsive();
+  const { theme } = useTheme();
 
   // If on mobile (or small screen), just return the app normally
   if (isMobile) {
@@ -25,7 +27,7 @@ export default function WebLayoutWrapper({ children }: WebLayoutWrapperProps) {
       <ScreenBackground />
       
       {/* Left Side: Mobile App Container */}
-      <View style={styles.appContainer}>
+      <View style={[styles.appContainer, { backgroundColor: theme.background }]}>
         {children}
       </View>
 
@@ -106,9 +108,8 @@ const styles = StyleSheet.create({
   },
   appContainer: {
     width: 450, // Fixed width resembling a large phone/tablet
-    height: Platform.OS === 'web' ? '100vh' : '100%',
-    maxHeight: Platform.OS === 'web' ? '100vh' : '100%',
-    backgroundColor: Colors.textPrimary, // Force dark theme for the app container
+    height: '100%',
+    maxHeight: '100%',
     borderRightWidth: 1,
     borderRightColor: 'rgba(255,255,255,0.1)',
     shadowColor: '#000',

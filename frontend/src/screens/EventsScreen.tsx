@@ -8,6 +8,7 @@ import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { useResponsive } from '../hooks/useResponsive';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { useTheme } from '../theme/ThemeContext';
 
 // Types for backend compatibility
 interface SponsoredEvent {
@@ -15,6 +16,17 @@ interface SponsoredEvent {
   title: string;
   date: string;
   image: string;
+  prize?: string;
+  participants?: number;
+}
+
+interface Tournament {
+  id: string;
+  title: string;
+  date: string;
+  image: string;
+  location: string;
+  entryFee: string;
 }
 
 interface CommunityGroup {
@@ -45,11 +57,13 @@ const SPORTS = [
 export default function EventsScreen() {
   const { isMobile } = useResponsive();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const { theme } = useTheme();
 
   // State for backend data
   const [sponsoredEvents, setSponsoredEvents] = useState<SponsoredEvent[]>([]);
   const [communities, setCommunities] = useState<CommunityGroup[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [viewAllSection, setViewAllSection] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -63,8 +77,8 @@ export default function EventsScreen() {
 
         // Mock response data
         const mockSponsored: SponsoredEvent[] = [
-          { id: '1', title: 'City Marathon 2026', date: 'Oct 12 • Downtown', image: 'https://images.unsplash.com/photo-1552674605-15c3705e9705?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' },
-          { id: '2', title: 'Nike 3v3 Tournament', date: 'Nov 5 • Eastside', image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' },
+          { id: '1', title: 'Summer Champions League', date: 'Jul 15 - Aug 30', image: 'https://images.unsplash.com/photo-1518605368461-1e1e38ce8ba9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80', prize: '$10,000', participants: 32 },
+          { id: '2', title: 'Downtown Hoops', date: 'Jul 20 - Jul 25', image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80', prize: '$5,000', participants: 16 },
         ];
 
         const mockCommunities: CommunityGroup[] = [
@@ -77,12 +91,18 @@ export default function EventsScreen() {
         const mockEvents: EventItem[] = [
           { id: '1', title: 'Casual 5v5 Pickup', date: 'Tomorrow, 7:00 PM', location: 'Elite Sports Arena', attendees: 8, maxAttendees: 10, image: 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80' },
           { id: '2', title: 'Tennis Doubles', date: 'Saturday, 9:00 AM', location: 'Valley Tennis Complex', attendees: 2, maxAttendees: 4, image: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80' },
-          { id: '3', title: 'Basketball Scrimmage', date: 'Sunday, 5:00 PM', location: 'City Hoops Center', attendees: 6, maxAttendees: 10, image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80' },
+          { id: '3', title: 'Pickleball Mixer', date: 'Jul 25', location: 'Valley Court', attendees: 16, maxAttendees: 20, image: 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
+        ];
+
+        const mockTournaments: Tournament[] = [
+          { id: '1', title: 'City Basketball Cup', date: 'Aug 10', image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3', location: 'Central Arena', entryFee: '$50/team' },
+          { id: '2', title: 'Tennis Open', date: 'Aug 15', image: 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?ixlib=rb-4.0.3', location: 'Valley Court', entryFee: '$20/player' },
         ];
 
         setSponsoredEvents(mockSponsored);
         setCommunities(mockCommunities);
         setEvents(mockEvents);
+        setTournaments(mockTournaments);
       } catch (error) {
         console.error("Failed to load events data", error);
       } finally {
@@ -98,17 +118,17 @@ export default function EventsScreen() {
       <TouchableOpacity style={styles.locationSelector}>
         <Ionicons name="location" size={28} color={Colors.primary} />
         <View style={styles.locationTextContainer}>
-          <Text style={[Typography.caption, { color: Colors.textSecondary }]}>Current Location</Text>
+          <Text style={[Typography.caption, { color: theme.textSecondary }]}>Current Location</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={[Typography.headline, { color: '#FFF', fontSize: 16 }]}>New York, USA</Text>
-            <Ionicons name="chevron-down" size={16} color={Colors.textSecondary} style={{ marginLeft: 4 }} />
+            <Text style={[Typography.headline, { color: theme.text, fontSize: 16 }]}>New York, USA</Text>
+            <Ionicons name="chevron-down" size={16} color={theme.textSecondary} style={{ marginLeft: 4 }} />
           </View>
         </View>
       </TouchableOpacity>
 
       <View style={styles.headerActions}>
         <TouchableOpacity style={styles.actionIcon}>
-          <Ionicons name="bag-handle-outline" size={28} color="#FFF" />
+          <Ionicons name="bag-handle-outline" size={28} color={theme.text} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.profileAvatar} onPress={() => navigation.navigate('Profile')}>
           <Ionicons name="person" size={20} color={Colors.primary} />
@@ -135,20 +155,21 @@ export default function EventsScreen() {
   const renderSponsoredCarousel = () => {
     if (!sponsoredEvents.length) return null;
     return (
-      <View style={styles.sectionHeader}>
-        <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Events Near You</Text>
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={[Typography.title2, styles.sectionTitle, { color: theme.text }]}>Sponsored Leagues</Text>
+        </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
           {sponsoredEvents.map((event) => (
             <View key={event.id} style={styles.sponsoredCard}>
               <Image source={{ uri: event.image }} style={styles.sponsoredImage} />
               <View style={styles.sponsoredOverlay}>
-                <View style={styles.sponsoredBadge}>
-                  <Text style={styles.sponsoredBadgeText}>Sponsored</Text>
+                <View style={styles.prizeBadge}>
+                  <Ionicons name="trophy" size={14} color="#000" />
+                  <Text style={styles.prizeText}>{event.prize}</Text>
                 </View>
-                <View>
-                  <Text style={styles.sponsoredTitle}>{event.title}</Text>
-                  <Text style={styles.sponsoredDate}>{event.date}</Text>
-                </View>
+                <Text style={styles.sponsoredTitle}>{event.title}</Text>
+                <Text style={styles.sponsoredSubtitle}>{event.date} • {event.participants} Teams</Text>
               </View>
             </View>
           ))}
@@ -161,9 +182,9 @@ export default function EventsScreen() {
     <View style={styles.section}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
         {SPORTS.map((sport, index) => (
-          <TouchableOpacity key={sport.id} style={[styles.sportChip, index === 0 && styles.sportChipActive]}>
-            <Ionicons name={sport.icon as any} size={18} color={index === 0 ? '#FFF' : Colors.textPrimary} />
-            <Text style={[styles.sportText, index === 0 && styles.sportTextActive]}>{sport.name}</Text>
+          <TouchableOpacity key={sport.id} style={[styles.categoryChip, { backgroundColor: index === 0 ? Colors.primary : theme.cardBackground, borderColor: index === 0 ? Colors.primary : theme.border }]}>
+            <Ionicons name={sport.icon as any} size={18} color={index === 0 ? '#FFF' : theme.text} />
+            <Text style={[styles.sportText, { color: index === 0 ? '#FFF' : theme.text }]}>{sport.name}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -175,7 +196,7 @@ export default function EventsScreen() {
     return (
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Popular Communities</Text>
+          <Text style={[Typography.title2, styles.sectionTitle, { color: theme.text }]}>Popular Communities</Text>
           <TouchableOpacity onPress={() => setViewAllSection('communities')}>
             <Text style={styles.seeAllText}>See All</Text>
           </TouchableOpacity>
@@ -184,8 +205,8 @@ export default function EventsScreen() {
           {communities.map((community) => (
             <View key={community.id} style={styles.communityCard}>
               <Image source={{ uri: community.image }} style={styles.communityImage} />
-              <Text style={[Typography.headline, styles.communityName, { color: '#FFF' }]} numberOfLines={1}>{community.name}</Text>
-              <Text style={[Typography.caption, { color: Colors.textSecondary }]}>{community.members} members</Text>
+              <Text style={[Typography.headline, styles.communityName, { color: theme.text }]} numberOfLines={1}>{community.name}</Text>
+              <Text style={[Typography.caption, { color: theme.textSecondary }]}>{community.members} members</Text>
             </View>
           ))}
         </ScrollView>
@@ -199,15 +220,15 @@ export default function EventsScreen() {
         <View style={[styles.sectionHeader, { justifyContent: 'flex-start' }]}>
           <TouchableOpacity onPress={() => setViewAllSection(null)} style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Ionicons name="arrow-back" size={24} color={Colors.primary} />
-            <Text style={[Typography.title2, { color: '#FFF', marginLeft: 8 }]}>All Communities</Text>
+            <Text style={[Typography.title2, { color: theme.text, marginLeft: 8 }]}>All Communities</Text>
           </TouchableOpacity>
         </View>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: 10 }}>
           {communities.map((community) => (
             <View key={community.id} style={[styles.communityCard, { marginBottom: 32, marginRight: 0, width: '30%' }]}>
               <Image source={{ uri: community.image }} style={styles.communityImage} />
-              <Text style={[Typography.headline, styles.communityName, { color: '#FFF' }]} numberOfLines={2}>{community.name}</Text>
-              <Text style={[Typography.caption, { color: Colors.textSecondary }]}>{community.members} members</Text>
+              <Text style={[Typography.headline, styles.communityName, { color: theme.text }]} numberOfLines={2}>{community.name}</Text>
+              <Text style={[Typography.caption, { color: theme.textSecondary }]}>{community.members} members</Text>
             </View>
           ))}
         </View>
@@ -215,40 +236,39 @@ export default function EventsScreen() {
     );
   };
 
-  const renderEventList = () => {
-    if (!events.length) return null;
+  const renderTournaments = () => {
+    if (!tournaments.length) return null;
     return (
-      <View style={styles.sectionHeader}>
-        <Text style={[Typography.title2, styles.sectionTitle, { color: '#FFF' }]}>Upcoming Events</Text>
-        {events.map((event) => (
-          <TouchableOpacity key={event.id} style={styles.eventCard}>
-            <Image source={{ uri: event.image }} style={styles.eventImage} />
-            <View style={styles.eventInfo}>
-              <View style={styles.eventHeaderRow}>
-                <Text style={[Typography.headline, { color: Colors.textPrimary, flex: 1, fontSize: 16 }]} numberOfLines={1}>{event.title}</Text>
-              </View>
-              <View style={styles.eventDetailsRow}>
-                <Ionicons name="calendar-outline" size={14} color={Colors.textSecondary} />
-                <Text style={[Typography.caption, { color: Colors.textSecondary, marginLeft: 6 }]}>{event.date}</Text>
-              </View>
-              <View style={styles.eventDetailsRow}>
-                <Ionicons name="location-outline" size={14} color={Colors.textSecondary} />
-                <Text style={[Typography.caption, { color: Colors.textSecondary, marginLeft: 6 }]} numberOfLines={1}>{event.location}</Text>
-              </View>
-              <View style={styles.eventFooterRow}>
-                <View style={styles.attendeesContainer}>
-                  <Ionicons name="people" size={16} color={Colors.primary} />
-                  <Text style={[Typography.caption, { color: Colors.textPrimary, marginLeft: 6, fontWeight: 'bold' }]}>
-                    {event.attendees}/{event.maxAttendees} joined
-                  </Text>
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={[Typography.title2, styles.sectionTitle, { color: theme.text }]}>Upcoming Tournaments</Text>
+        </View>
+        <View style={styles.listContainer}>
+          {tournaments.map((tournament) => (
+            <View key={tournament.id} style={[styles.tournamentCard, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
+              <View style={styles.tournamentHeader}>
+                <Image source={{ uri: tournament.image }} style={styles.tournamentImage} />
+                <View style={styles.tournamentInfo}>
+                  <Text style={[Typography.headline, { color: theme.text, fontSize: 16 }]}>{tournament.title}</Text>
+                  <Text style={[Typography.caption, { color: theme.textSecondary, marginBottom: 4 }]}>{tournament.date}</Text>
+                  <View style={styles.metaRow}>
+                    <Ionicons name="location-outline" size={14} color={theme.textSecondary} />
+                    <Text style={[Typography.caption, { color: theme.textSecondary, marginLeft: 4 }]}>{tournament.location}</Text>
+                  </View>
                 </View>
-                <TouchableOpacity style={styles.joinButton}>
-                  <Text style={styles.joinButtonText}>Join</Text>
+              </View>
+              <View style={[styles.tournamentFooter, { borderTopColor: theme.border }]}>
+                <View style={styles.feeContainer}>
+                  <Text style={[Typography.caption, { color: theme.textSecondary }]}>Entry Fee</Text>
+                  <Text style={[Typography.headline, { color: theme.text }]}>{tournament.entryFee}</Text>
+                </View>
+                <TouchableOpacity style={styles.registerButton}>
+                  <Text style={styles.registerButtonText}>Register</Text>
                 </TouchableOpacity>
               </View>
             </View>
-          </TouchableOpacity>
-        ))}
+          ))}
+        </View>
       </View>
     );
   };
@@ -261,14 +281,14 @@ export default function EventsScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.root, styles.centerAll, { backgroundColor: Colors.textPrimary }]}>
+      <View style={[styles.root, styles.centerAll, { backgroundColor: theme.background }]}>
         <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
 
   return (
-    <View style={[styles.root, { backgroundColor: Colors.textPrimary }]}>
+    <View style={[styles.root, { backgroundColor: theme.background }]}>
       <SafeAreaView style={styles.safe} edges={['top']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {renderHeader()}
@@ -280,7 +300,7 @@ export default function EventsScreen() {
               {renderSponsoredCarousel()}
               {renderSportsBar()}
               {renderCommunities()}
-              {renderEventList()}
+              {renderTournaments()}
             </>
           )}
           <View style={styles.bottomSpacer} />
@@ -400,22 +420,25 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   sponsoredOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'space-between',
     padding: 16,
   },
-  sponsoredBadge: {
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+  prizeBadge: {
+    backgroundColor: '#FFF',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 12,
     alignSelf: 'flex-start',
   },
-  sponsoredBadgeText: {
+  prizeText: {
     color: '#000',
     fontSize: 12,
     fontWeight: 'bold',
+    marginLeft: 4,
   },
   sponsoredTitle: {
     color: '#FFF',
@@ -423,35 +446,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 4,
   },
-  sponsoredDate: {
+  sponsoredSubtitle: {
     color: '#E0E0E0',
     fontSize: 14,
-    fontWeight: '500',
   },
-  sportChip: {
+  categoryChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.cardBackground,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
     borderRadius: 24,
     marginRight: 12,
-    shadowColor: Colors.cardShadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  sportChipActive: {
-    backgroundColor: Colors.primary,
+    borderWidth: 1,
   },
   sportText: {
     marginLeft: 8,
     fontWeight: '600',
-    color: Colors.textPrimary,
-  },
-  sportTextActive: {
-    color: '#FFF',
   },
   communityCard: {
     alignItems: 'center',
@@ -471,53 +481,55 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 4,
   },
-  eventCard: {
-    backgroundColor: Colors.cardBackground,
+  listContainer: {
+    gap: 16,
+  },
+  tournamentCard: {
     borderRadius: 20,
-    overflow: 'hidden',
-    marginBottom: 20,
-    shadowColor: Colors.cardShadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 12,
-    elevation: 5,
-  },
-  eventImage: {
-    width: '100%',
-    height: 140,
-  },
-  eventInfo: {
     padding: 16,
+    marginBottom: 16,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 1,
   },
-  eventHeaderRow: {
+  tournamentHeader: {
+    flexDirection: 'row',
+  },
+  tournamentImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 16,
+  },
+  tournamentInfo: {
+    marginLeft: 16,
+    flex: 1,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  feeContainer: {
+    alignItems: 'flex-start',
+  },
+  tournamentFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
-  },
-  eventDetailsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  eventFooterRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 12,
-    paddingTop: 12,
+    marginTop: 16,
+    paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)',
   },
-  attendeesContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  joinButton: {
+  registerButton: {
     backgroundColor: Colors.primary,
     paddingHorizontal: 20,
     paddingVertical: 8,
     borderRadius: 16,
+  },
+  registerButtonText: {
+    color: '#000',
+    fontWeight: 'bold',
   },
   joinButtonText: {
     color: '#000',

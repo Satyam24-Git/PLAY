@@ -30,20 +30,19 @@ export default function ScreenBackground({ overlayOpacity = 0.52 }: { overlayOpa
         <View
           // @ts-ignore — RN Web supports these CSS props via style
             style={[
-              StyleSheet.absoluteFillObject,
+              StyleSheet.absoluteFill,
               {
                 backgroundImage: uri ? `url("${uri}")` : undefined,
                 backgroundSize: 'cover',
                 backgroundPosition: isMobile ? 'bottom center' : 'center',
                 backgroundRepeat: 'no-repeat',
-                // Fallback colour while image loads
                 backgroundColor: '#0d2e0d',
-              },
+              } as any,
             ]}
         />
         <View
           style={[
-            StyleSheet.absoluteFillObject,
+            StyleSheet.absoluteFill,
             { backgroundColor: `rgba(0,0,0,${overlayOpacity})` },
           ]}
         />
@@ -56,12 +55,12 @@ export default function ScreenBackground({ overlayOpacity = 0.52 }: { overlayOpa
     <>
       <Image
         source={source}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
         resizeMode="cover"
       />
       <View
         style={[
-          StyleSheet.absoluteFillObject,
+          StyleSheet.absoluteFill,
           { backgroundColor: `rgba(0,0,0,${overlayOpacity})` },
         ]}
       />
