@@ -53,6 +53,7 @@ export default function HomeScreen() {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
+  const [viewAllSection, setViewAllSection] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Simulate API Call
@@ -212,8 +213,36 @@ export default function HomeScreen() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={[Typography.title2, styles.sectionTitle, { color: isMobile ? '#FFF' : Colors.textPrimary }]}>Popular Venues</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => setViewAllSection('venues')}>
             <Text style={styles.seeAllText}>See All</Text>
+          </TouchableOpacity>
+        </View>
+        {venues.slice(0, 3).map((venue) => (
+          <TouchableOpacity key={venue.id} style={styles.venueCard}>
+            <Image source={{ uri: venue.image }} style={styles.venueImage} />
+            <View style={styles.venueInfo}>
+              <Text style={[Typography.headline, { color: Colors.textPrimary, fontSize: 16 }]}>{venue.name}</Text>
+              <View style={styles.venueMetaRow}>
+                <Ionicons name="location-outline" size={14} color={Colors.textSecondary} />
+                <Text style={[Typography.caption, { color: Colors.textSecondary, marginLeft: 4 }]}>{venue.location}</Text>
+                <View style={styles.dot} />
+                <Ionicons name="star" size={14} color="#FFD700" />
+                <Text style={[Typography.caption, { color: Colors.textSecondary, marginLeft: 4 }]}>{venue.rating}</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
+  };
+
+  const renderAllVenues = () => {
+    return (
+      <View style={styles.section}>
+        <View style={[styles.sectionHeader, { justifyContent: 'flex-start' }]}>
+          <TouchableOpacity onPress={() => setViewAllSection(null)} style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Ionicons name="arrow-back" size={24} color={Colors.primary} />
+            <Text style={[Typography.title2, { color: isMobile ? '#FFF' : Colors.textPrimary, marginLeft: 8 }]}>All Venues</Text>
           </TouchableOpacity>
         </View>
         {venues.map((venue) => (
@@ -250,11 +279,17 @@ export default function HomeScreen() {
       <SafeAreaView style={styles.safe} edges={['top']}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {renderHeader()}
-          {renderAdvertisement()}
-          {renderUpcomingBookings()}
-          {renderUserAnalytics()}
-          {renderSportsBar()}
-          {renderVenues()}
+          {viewAllSection === 'venues' ? (
+            renderAllVenues()
+          ) : (
+            <>
+              {renderAdvertisement()}
+              {renderUpcomingBookings()}
+              {renderUserAnalytics()}
+              {renderSportsBar()}
+              {renderVenues()}
+            </>
+          )}
           <View style={styles.bottomSpacer} />
         </ScrollView>
       </SafeAreaView>
