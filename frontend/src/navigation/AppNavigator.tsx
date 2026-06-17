@@ -8,6 +8,8 @@ import InterestsScreen from '../screens/InterestsScreen';
 import AllSetScreen from '../screens/AllSetScreen';
 import MainTabNavigator from './MainTabNavigator';
 import WebLayoutWrapper from '../components/WebLayoutWrapper';
+import ProfileScreen from '../screens/ProfileScreen';
+import { useResponsive } from '../hooks/useResponsive';
 
 export type RootStackParamList = {
   Email: undefined;
@@ -15,15 +17,48 @@ export type RootStackParamList = {
   Interests: { email: string };
   AllSet: undefined;
   Main: undefined;
+  Profile: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
+const InnerStack = createStackNavigator();
 
-const MainLayout = () => (
-  <WebLayoutWrapper>
-    <MainTabNavigator />
-  </WebLayoutWrapper>
+const InnerNavigator = () => (
+  <InnerStack.Navigator
+    screenOptions={{
+      headerShown: false,
+      cardStyleInterpolator: ({ current, layouts }) => ({
+        cardStyle: {
+          transform: [
+            {
+              translateX: current.progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [layouts.screen.width, 0],
+              }),
+            },
+          ],
+        },
+      }),
+    }}
+  >
+    <InnerStack.Screen name="MainTabs" component={MainTabNavigator} />
+    <InnerStack.Screen name="Profile" component={ProfileScreen} />
+  </InnerStack.Navigator>
 );
+
+const MainLayout = () => {
+  const { isMobile } = useResponsive();
+  
+  if (isMobile) {
+    return <InnerNavigator />;
+  }
+  
+  return (
+    <WebLayoutWrapper>
+      <InnerNavigator />
+    </WebLayoutWrapper>
+  );
+};
 
 export default function AppNavigator() {
   return (

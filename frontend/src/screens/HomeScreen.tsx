@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
 import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { useResponsive } from '../hooks/useResponsive';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
 // Types for backend compatibility
 interface Advertisement {
@@ -46,6 +49,7 @@ const SPORTS = [
 
 export default function HomeScreen() {
   const { isMobile } = useResponsive();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   // State for backend data
   const [ads, setAds] = useState<Advertisement[]>([]);
@@ -115,7 +119,7 @@ export default function HomeScreen() {
         <TouchableOpacity style={styles.actionIcon}>
           <Ionicons name="bag-handle-outline" size={28} color="#FFF" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.profileAvatar}>
+        <TouchableOpacity style={styles.profileAvatar} onPress={() => navigation.navigate('Profile')}>
           <Ionicons name="person" size={20} color={Colors.primary} />
         </TouchableOpacity>
       </View>
