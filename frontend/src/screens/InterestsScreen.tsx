@@ -92,7 +92,7 @@ export default function InterestsScreen({ navigation }: any) {
       Animated.timing(scaleAnim, { toValue: 0.97, duration: 80, useNativeDriver: true, easing: Easing.out(Easing.quad) }),
       Animated.timing(scaleAnim, { toValue: 1, duration: 120, useNativeDriver: true, easing: Easing.out(Easing.quad) }),
     ]).start();
-    setTimeout(() => { setLoading(false); navigation.reset({ index: 0, routes: [{ name: 'Home' }] }); }, 1500);
+    setTimeout(() => { setLoading(false); navigation.reset({ index: 0, routes: [{ name: 'AllSet' }] }); }, 1500);
   };
 
   const handleNext = () => {
@@ -144,6 +144,103 @@ export default function InterestsScreen({ navigation }: any) {
     { title: "Location", subtitle: "Where do you play?" }
   ];
 
+
+  const rightContent = (
+    <>
+      <TouchableOpacity style={styles.backBtn} onPress={handleBackStep}>
+        <Text style={styles.backIcon}>←</Text>
+        <Text style={styles.backLabel}>Back</Text>
+      </TouchableOpacity>
+
+      <Animated.View style={{ opacity: fadeAnim, transform: [{ translateX: slideAnim }], width: '100%' }}>
+        <Text style={[Typography.headline, styles.formTitle]}>{STEP_CONFIG[step].title}</Text>
+        <Text style={[Typography.callout, styles.formSubtitle]}>{STEP_CONFIG[step].subtitle}</Text>
+
+        {step === 0 && (
+          <View style={styles.stepContainer}>
+            <Text style={[Typography.label, styles.fieldLabel]}>Your Name</Text>
+            <View style={[styles.inputRow, nameFocused && styles.inputFocused, !!errors.name && styles.inputError]}>
+              <TextInput
+                style={styles.input}
+                placeholder="Full name"
+                placeholderTextColor={Colors.placeholder}
+                value={name}
+                onChangeText={(t) => { setName(t); setErrors((e) => ({ ...e, name: '' })); }}
+                onFocus={() => setNameFocused(true)}
+                onBlur={() => setNameFocused(false)}
+                autoCapitalize="words"
+                onSubmitEditing={handleNext}
+              />
+            </View>
+            {!!errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+          </View>
+        )}
+
+        {step === 1 && (
+          <View style={styles.stepContainer}>
+            <Text style={[Typography.label, styles.fieldLabel]}>Sports Interests</Text>
+            <Text style={[Typography.caption, { color: Colors.textTertiary, marginBottom: 10 }]}>Select all that apply</Text>
+            <View style={styles.chipGrid}>
+              {SPORTS.map((sport) => {
+                const active = selectedSports.includes(sport.id);
+                return (
+                  <TouchableOpacity
+                    key={sport.id}
+                    style={[styles.chip, active && styles.chipActive]}
+                    onPress={() => toggleSport(sport.id)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.chipIcon}>{sport.icon}</Text>
+                    <Text style={[styles.chipLabel, active && styles.chipLabelActive]}>{sport.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            {!!errors.sports && <Text style={styles.errorText}>{errors.sports}</Text>}
+          </View>
+        )}
+
+        {step === 2 && (
+          <View style={styles.stepContainer}>
+            <Text style={[Typography.label, styles.fieldLabel]}>Location</Text>
+            <View style={styles.locationRow}>
+              <TouchableOpacity
+                style={[styles.picker, !!errors.state && styles.inputError]}
+                onPress={() => setStateModal(true)} activeOpacity={0.75}
+              >
+                <Text style={[styles.pickerText, !selectedState && styles.pickerPlaceholder]}>
+                  {selectedState || 'State'}
+                </Text>
+                <Text style={styles.pickerArrow}>▾</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.picker, !selectedState && styles.pickerDisabled, !!errors.city && styles.inputError]}
+                onPress={() => selectedState && setCityModal(true)} activeOpacity={0.75}
+              >
+                <Text style={[styles.pickerText, !selectedCity && styles.pickerPlaceholder]}>
+                  {selectedCity || 'City'}
+                </Text>
+                <Text style={styles.pickerArrow}>▾</Text>
+              </TouchableOpacity>
+            </View>
+            {(!!errors.state || !!errors.city) && (
+              <Text style={styles.errorText}>{errors.state || errors.city}</Text>
+            )}
+          </View>
+        )}
+      </Animated.View>
+
+      {/* CTA */}
+      <Animated.View style={{ transform: [{ scale: scaleAnim }], width: '100%', marginTop: 24 }}>
+        <TouchableOpacity
+          style={[styles.primaryBtn, loading && styles.btnLoading]}
+          onPress={handleNext} activeOpacity={0.85} disabled={loading}
+        >
+          <Text style={styles.primaryBtnText}>{step === 2 ? (loading ? 'Setting up…' : "Let's Play  →") : 'Next  →'}</Text>
+        </TouchableOpacity>
+      </Animated.View>
+    </>
+  );
 
   return (
     <View style={[styles.root, isMobile && { backgroundColor: Colors.textPrimary }]}>
@@ -236,106 +333,21 @@ export default function InterestsScreen({ navigation }: any) {
           {!isMobile && <View style={styles.dividerV} />}
 
           {/* ── RIGHT / BOTTOM PANEL (scrollable) ── */}
-          <ScrollView
-            style={styles.rightScroll}
-            contentContainerStyle={[styles.rightPanel, isMobile && styles.rightPanelMobile]}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            nestedScrollEnabled
-          >
-            <TouchableOpacity style={styles.backBtn} onPress={handleBackStep}>
-              <Text style={styles.backIcon}>←</Text>
-              <Text style={styles.backLabel}>Back</Text>
-            </TouchableOpacity>
-
-            <Animated.View style={{ opacity: fadeAnim, transform: [{ translateX: slideAnim }] }}>
-              <Text style={[Typography.headline, styles.formTitle]}>{STEP_CONFIG[step].title}</Text>
-              <Text style={[Typography.callout, styles.formSubtitle]}>{STEP_CONFIG[step].subtitle}</Text>
-
-              {step === 0 && (
-                <View style={styles.stepContainer}>
-                  <Text style={[Typography.label, styles.fieldLabel]}>Your Name</Text>
-                  <View style={[styles.inputRow, nameFocused && styles.inputFocused, !!errors.name && styles.inputError]}>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Full name"
-                      placeholderTextColor={Colors.placeholder}
-                      value={name}
-                      onChangeText={(t) => { setName(t); setErrors((e) => ({ ...e, name: '' })); }}
-                      onFocus={() => setNameFocused(true)}
-                      onBlur={() => setNameFocused(false)}
-                      autoCapitalize="words"
-                      onSubmitEditing={handleNext}
-                    />
-                  </View>
-                  {!!errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
-                </View>
-              )}
-
-              {step === 1 && (
-                <View style={styles.stepContainer}>
-                  <Text style={[Typography.label, styles.fieldLabel]}>Sports Interests</Text>
-                  <Text style={[Typography.caption, { color: Colors.textTertiary, marginBottom: 10 }]}>Select all that apply</Text>
-                  <View style={styles.chipGrid}>
-                    {SPORTS.map((sport) => {
-                      const active = selectedSports.includes(sport.id);
-                      return (
-                        <TouchableOpacity
-                          key={sport.id}
-                          style={[styles.chip, active && styles.chipActive]}
-                          onPress={() => toggleSport(sport.id)}
-                          activeOpacity={0.7}
-                        >
-                          <Text style={styles.chipIcon}>{sport.icon}</Text>
-                          <Text style={[styles.chipLabel, active && styles.chipLabelActive]}>{sport.label}</Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                  {!!errors.sports && <Text style={styles.errorText}>{errors.sports}</Text>}
-                </View>
-              )}
-
-              {step === 2 && (
-                <View style={styles.stepContainer}>
-                  <Text style={[Typography.label, styles.fieldLabel]}>Location</Text>
-                  <View style={styles.locationRow}>
-                    <TouchableOpacity
-                      style={[styles.picker, !!errors.state && styles.inputError]}
-                      onPress={() => setStateModal(true)} activeOpacity={0.75}
-                    >
-                      <Text style={[styles.pickerText, !selectedState && styles.pickerPlaceholder]}>
-                        {selectedState || 'State'}
-                      </Text>
-                      <Text style={styles.pickerArrow}>▾</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.picker, !selectedState && styles.pickerDisabled, !!errors.city && styles.inputError]}
-                      onPress={() => selectedState && setCityModal(true)} activeOpacity={0.75}
-                    >
-                      <Text style={[styles.pickerText, !selectedCity && styles.pickerPlaceholder]}>
-                        {selectedCity || 'City'}
-                      </Text>
-                      <Text style={styles.pickerArrow}>▾</Text>
-                    </TouchableOpacity>
-                  </View>
-                  {(!!errors.state || !!errors.city) && (
-                    <Text style={styles.errorText}>{errors.state || errors.city}</Text>
-                  )}
-                </View>
-              )}
-            </Animated.View>
-
-            {/* CTA */}
-            <Animated.View style={{ transform: [{ scale: scaleAnim }], width: '100%', marginTop: 24 }}>
-              <TouchableOpacity
-                style={[styles.primaryBtn, loading && styles.btnLoading]}
-                onPress={handleNext} activeOpacity={0.85} disabled={loading}
-              >
-                <Text style={styles.primaryBtnText}>{step === 2 ? (loading ? 'Setting up…' : "Let's Play  →") : 'Next  →'}</Text>
-              </TouchableOpacity>
-            </Animated.View>
-          </ScrollView>
+          {isMobile ? (
+            <View style={styles.rightPanelMobile}>
+              {rightContent}
+            </View>
+          ) : (
+            <ScrollView
+              style={{ flex: 1, width: '100%' }}
+              contentContainerStyle={styles.rightPanel}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              nestedScrollEnabled
+            >
+              {rightContent}
+            </ScrollView>
+          )}
 
         </View>
       </ScrollView>
@@ -363,14 +375,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.40, shadowRadius: 48, elevation: 24,
     maxHeight: 580,
   },
-  cardMobile: { flexDirection: 'column', maxHeight: undefined, borderRadius: 0, borderTopLeftRadius: 32, borderTopRightRadius: 32, flex: 0 },
+  cardMobile: { flexDirection: 'column', maxHeight: '100%', minHeight: '65%', borderRadius: 0, borderTopLeftRadius: 32, borderTopRightRadius: 32, flex: 2 },
 
   mobileHeader: {
     flex: 1,
     paddingHorizontal: 24,
     paddingTop: 40,
     paddingBottom: 32,
-    minHeight: 250, // ensures the background image gets enough space to be seen
+    minHeight: 180, // Reduced from 250 to bring the card higher up
   },
   mobileHeaderTop: { gap: 4 },
   mobileTitle: { fontSize: 32, fontWeight: '800', color: '#FFF', letterSpacing: -1, marginBottom: 16 },
@@ -398,16 +410,15 @@ const styles = StyleSheet.create({
 
   dividerV: { width: 1, backgroundColor: Colors.border },
 
-  rightScroll: { flex: 0 }, // flex: 0 on mobile so it takes only what it needs, but on desktop it's constrained by maxHeight
   rightPanel: { paddingHorizontal: 36, paddingVertical: 32 },
-  rightPanelMobile: { paddingHorizontal: 24, paddingVertical: 32, paddingBottom: 60 },
+  rightPanelMobile: { paddingHorizontal: 24, paddingVertical: 32, paddingBottom: 100 },
   backBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 },
   backIcon: { fontSize: 17, color: Colors.textSecondary },
   backLabel: { fontSize: 14, color: Colors.textSecondary },
   formTitle: { marginBottom: 4, color: Colors.textPrimary },
   formSubtitle: { color: Colors.textSecondary, marginBottom: 18 },
 
-  stepContainer: { flex: 1, paddingBottom: 20 },
+  stepContainer: { paddingBottom: 20 },
   fieldLabel: { marginBottom: 8 },
   inputRow: {
     flexDirection: 'row', alignItems: 'center',

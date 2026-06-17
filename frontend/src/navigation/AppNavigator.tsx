@@ -5,13 +5,15 @@ import { createStackNavigator } from '@react-navigation/stack';
 import EmailScreen from '../screens/EmailScreen';
 import OTPScreen from '../screens/OTPScreen';
 import InterestsScreen from '../screens/InterestsScreen';
-import HomeScreen from '../screens/HomeScreen';
+import AllSetScreen from '../screens/AllSetScreen';
+import MainTabNavigator from './MainTabNavigator';
 
 export type RootStackParamList = {
   Email: undefined;
   OTP: { email: string };
   Interests: { email: string };
-  Home: undefined;
+  AllSet: undefined;
+  Main: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -45,7 +47,8 @@ export default function AppNavigator() {
         <Stack.Screen name="Email" component={EmailScreen} />
         <Stack.Screen name="OTP" component={OTPScreen} />
         <Stack.Screen name="Interests" component={InterestsScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="AllSet" component={AllSetScreen} />
+        <Stack.Screen name="Main" component={MainTabNavigator} />
       </Stack.Navigator>
     </NavigationContainer>
   );
