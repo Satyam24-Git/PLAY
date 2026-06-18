@@ -7,6 +7,9 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   full_name TEXT,
   avatar_url TEXT,
   user_type TEXT DEFAULT 'player', -- 'player', 'organizer', 'owner'
+  sports TEXT[],
+  state TEXT,
+  city TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 

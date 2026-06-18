@@ -4,6 +4,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import EmailScreen from '../screens/EmailScreen';
 import OTPScreen from '../screens/OTPScreen';
+import SigninScreen from '../screens/SigninScreen';
+import SigninOTPScreen from '../screens/SigninOTPScreen';
 import InterestsScreen from '../screens/InterestsScreen';
 import AllSetScreen from '../screens/AllSetScreen';
 import MainTabNavigator from './MainTabNavigator';
@@ -22,6 +24,8 @@ import { DefaultTheme, DarkTheme } from '@react-navigation/native';
 export type RootStackParamList = {
   Email: undefined;
   OTP: { email: string };
+  Signin: undefined;
+  SigninOTP: { email: string };
   Interests: { email: string };
   AllSet: undefined;
   Main: undefined;
@@ -115,6 +119,8 @@ const NavigationWrapper = () => {
       >
         <Stack.Screen name="Email" component={EmailScreen} />
         <Stack.Screen name="OTP" component={OTPScreen} />
+        <Stack.Screen name="Signin" component={SigninScreen} />
+        <Stack.Screen name="SigninOTP" component={SigninOTPScreen} />
         <Stack.Screen name="Interests" component={InterestsScreen} />
         <Stack.Screen name="AllSet" component={AllSetScreen} />
         <Stack.Screen name="Terms" component={TermsScreen} />

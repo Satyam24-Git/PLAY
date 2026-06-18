@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 
@@ -44,7 +44,7 @@ async def route_api(service: str, path: str, request: Request):
                 headers=dict(request.headers),
                 timeout=10.0
             )
-            return response.json()
+            return Response(content=response.content, status_code=response.status_code, media_type=response.headers.get("content-type", "application/json"))
         except Exception as e:
             raise HTTPException(status_code=502, detail=f"Bad Gateway: {str(e)}")
 

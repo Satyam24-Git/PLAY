@@ -15,10 +15,9 @@ import { setSession } from '../utils/auth';
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 30;
 
-export default function OTPScreen({ navigation, route }: any) {
+export default function SigninOTPScreen({ navigation, route }: any) {
   const { isMobile } = useResponsive();
   const email: string = route?.params?.email ?? 'your email';
-  const userType: string = route?.params?.userType ?? 'player';
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -72,10 +71,10 @@ export default function OTPScreen({ navigation, route }: any) {
     
     try {
       const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
-      const response = await fetch(`${API_URL}/api/auth/verify-otp`, {
+      const response = await fetch(`${API_URL}/api/auth/verify-signin-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, token: code, user_type: userType })
+        body: JSON.stringify({ email, token: code })
       });
       
       if (!response.ok) {
@@ -88,7 +87,7 @@ export default function OTPScreen({ navigation, route }: any) {
       }
       
       setLoading(false);
-      navigation.navigate('Interests', { email });
+      navigation.navigate('Main');
     } catch (err) {
       setLoading(false);
       setError('Invalid code. Please try again.');
@@ -125,9 +124,6 @@ export default function OTPScreen({ navigation, route }: any) {
                 </View>
                 <View style={{ flex: 1 }} />
                 <Text style={styles.mobileTitle}>Enter OTP</Text>
-                <View style={styles.stepRowMobile}>
-                  <View style={styles.step} /><View style={[styles.step, styles.stepActive]} /><View style={styles.step} />
-                </View>
               </View>
             )}
 
@@ -141,9 +137,6 @@ export default function OTPScreen({ navigation, route }: any) {
                   </View>
                   <Text style={styles.leftTitle}>Check your{'\n'}email.</Text>
                   <Text style={styles.leftSubtitle}>We sent a 6-digit code to{'\n'}<Text style={{ color: Colors.primary }}>{email}</Text></Text>
-                  <View style={styles.stepRow}>
-                    <View style={styles.step} /><View style={[styles.step, styles.stepActive]} /><View style={styles.step} />
-                  </View>
                 </View>
               )}
 

@@ -16,6 +16,13 @@ class Profile(BaseModel):
     avatar_url: Optional[str] = None
     user_type: Optional[str] = "player"
 
+class ProfileUpdate(BaseModel):
+    full_name: Optional[str] = None
+    avatar_url: Optional[str] = None
+    sports: Optional[list[str]] = None
+    state: Optional[str] = None
+    city: Optional[str] = None
+
 @app.get('/')
 def read_root():
     return {'status': 'healthy'}
@@ -40,4 +47,17 @@ def create_profile(profile: Profile):
         response = supabase.table("profiles").insert(data).execute()
         return response.data[0] if response.data else None
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/api/profiles/{user_id}")
+def update_profile(user_id: str, profile: ProfileUpdate):
+    try:
+        supabase = get_supabase_client()
+        data = profile.model_dump(exclude_unset=True)
+        response = supabase.table("profiles").update(data).eq("id", user_id).execute()
+        if not response.data:
+            raise HTTPException(status_code=404, detail="Profile not found")
+        return response.data[0]
+    except Exception as e:
+        if isinstance(e, HTTPException): raise e
         raise HTTPException(status_code=500, detail=str(e))

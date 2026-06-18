@@ -8,6 +8,7 @@ import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { useResponsive } from '../hooks/useResponsive';
 import ScreenBackground from '../components/ScreenBackground';
+import { getSession } from '../utils/auth';
 
 const SPORTS = [
   { id: 'cricket',    label: 'Cricket',    icon: '🏏' },
@@ -86,8 +87,27 @@ export default function InterestsScreen({ navigation }: any) {
     setErrors((e) => ({ ...e, sports: '' }));
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     setLoading(true);
+    try {
+      const session = await getSession();
+      if (session && session.userId) {
+        const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
+        await fetch(`${API_URL}/api/profiles/${session.userId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            full_name: name,
+            sports: selectedSports,
+            state: selectedState,
+            city: selectedCity
+          })
+        });
+      }
+    } catch (e) {
+      console.error('Failed to save profile', e);
+    }
+
     Animated.sequence([
       Animated.timing(scaleAnim, { toValue: 0.97, duration: 80, useNativeDriver: true, easing: Easing.out(Easing.quad) }),
       Animated.timing(scaleAnim, { toValue: 1, duration: 120, useNativeDriver: true, easing: Easing.out(Easing.quad) }),

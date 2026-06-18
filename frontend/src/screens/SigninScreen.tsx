@@ -12,13 +12,12 @@ import ScreenBackground from '../components/ScreenBackground';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export default function EmailScreen({ navigation }: any) {
+export default function SigninScreen({ navigation }: any) {
   const { isMobile } = useResponsive();
   const [email, setEmail] = useState('');
   const [focused, setFocused] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [userType, setUserType] = useState('player');
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handleSend = () => {
@@ -29,7 +28,7 @@ export default function EmailScreen({ navigation }: any) {
       Animated.timing(scaleAnim, { toValue: 0.97, duration: 80, useNativeDriver: true, easing: Easing.out(Easing.quad) }),
       Animated.timing(scaleAnim, { toValue: 1, duration: 120, useNativeDriver: true, easing: Easing.out(Easing.quad) }),
     ]).start();
-    setTimeout(() => { setLoading(false); navigation.navigate('OTP', { email, userType }); }, 1200);
+    setTimeout(() => { setLoading(false); navigation.navigate('SigninOTP', { email }); }, 1200);
   };
 
   return (
@@ -57,12 +56,7 @@ export default function EmailScreen({ navigation }: any) {
                   <Text style={[styles.brand, { color: '#FFF' }]}>PPLAY</Text>
                 </View>
                 <View style={{ flex: 1 }} />
-                <Text style={styles.mobileTitle}>Hello, Athlete.</Text>
-                <View style={styles.stepRowMobile}>
-                  <View style={[styles.step, styles.stepActive]} />
-                  <View style={styles.step} />
-                  <View style={styles.step} />
-                </View>
+                <Text style={styles.mobileTitle}>Welcome Back.</Text>
               </View>
             )}
 
@@ -77,13 +71,8 @@ export default function EmailScreen({ navigation }: any) {
                     </View>
                     <Text style={styles.brand}>PPLAY</Text>
                   </View>
-                  <Text style={styles.leftTitle}>Hello,{'\n'}Athlete.</Text>
-                  <Text style={styles.leftSubtitle}>Your sports community{'\n'}starts here.</Text>
-                  <View style={styles.stepRow}>
-                    <View style={[styles.step, styles.stepActive]} />
-                    <View style={styles.step} />
-                    <View style={styles.step} />
-                  </View>
+                  <Text style={styles.leftTitle}>Welcome,{'\n'}Back.</Text>
+                  <Text style={styles.leftSubtitle}>Ready for your{'\n'}next match?</Text>
                 </View>
               )}
 
@@ -117,22 +106,6 @@ export default function EmailScreen({ navigation }: any) {
                 </View>
                 {!!error && <Text style={styles.errorText}>{error}</Text>}
 
-                <Text style={[Typography.label, styles.fieldLabel, { marginTop: 20 }]}>I am a...</Text>
-                <View style={styles.roleContainer}>
-                  <TouchableOpacity 
-                    style={[styles.roleBtn, userType === 'player' && styles.roleBtnActive]} 
-                    onPress={() => setUserType('player')}
-                  >
-                    <Text style={[styles.roleText, userType === 'player' && styles.roleTextActive]}>Player</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[styles.roleBtn, userType === 'owner' && styles.roleBtnActive]} 
-                    onPress={() => setUserType('owner')}
-                  >
-                    <Text style={[styles.roleText, userType === 'owner' && styles.roleTextActive]}>Venue Owner</Text>
-                  </TouchableOpacity>
-                </View>
-
                 <Animated.View style={{ transform: [{ scale: scaleAnim }], width: '100%', marginTop: 20 }}>
                   <TouchableOpacity
                     style={[styles.primaryBtn, loading && styles.btnLoading]}
@@ -144,8 +117,8 @@ export default function EmailScreen({ navigation }: any) {
                   </TouchableOpacity>
                 </Animated.View>
 
-                <TouchableOpacity style={styles.secondaryBtn} onPress={() => navigation.navigate('Signin')} activeOpacity={0.7}>
-                  <Text style={styles.secondaryBtnText}>Back to Login</Text>
+                <TouchableOpacity style={styles.secondaryBtn} onPress={() => navigation.navigate('Email')} activeOpacity={0.7}>
+                  <Text style={styles.secondaryBtnText}>Don't have an account? Sign up</Text>
                 </TouchableOpacity>
               </View>
 
@@ -242,9 +215,4 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
   },
   secondaryBtnText: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
-  roleContainer: { flexDirection: 'row', gap: 12, marginBottom: 8 },
-  roleBtn: { flex: 1, height: 44, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
-  roleBtnActive: { borderColor: Colors.primary, backgroundColor: Colors.primaryMuted },
-  roleText: { fontSize: 14, fontWeight: '600', color: Colors.textSecondary },
-  roleTextActive: { color: Colors.primary },
 });
