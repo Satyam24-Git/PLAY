@@ -72,10 +72,40 @@ export default function EventsScreen() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 800));
+        const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
-        // Mock response data
+        // Fetch tournaments
+        const tournamentsRes = await fetch(`${API_URL}/api/tournaments`);
+        let fetchedTournaments: Tournament[] = [];
+        if (tournamentsRes.ok) {
+          const tData = await tournamentsRes.json();
+          fetchedTournaments = tData.map((t: any) => ({
+            id: t.id,
+            title: t.title,
+            date: t.start_date || 'TBD',
+            image: t.image_url || 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3', // Placeholder
+            location: 'Local Arena', // Fallback as location is not in table yet
+            entryFee: t.prize_pool ? `Prize: $${t.prize_pool}` : 'Free Entry'
+          }));
+        }
+
+        // Fetch matches (events)
+        const matchesRes = await fetch(`${API_URL}/api/matches`);
+        let fetchedEvents: EventItem[] = [];
+        if (matchesRes.ok) {
+          const mData = await matchesRes.json();
+          fetchedEvents = mData.map((m: any) => ({
+            id: m.id,
+            title: `${m.sport_type} Match`,
+            date: new Date(m.date).toLocaleString(),
+            location: m.venue?.name || 'Local Venue', // Needs join with venues
+            attendees: m.current_players,
+            maxAttendees: m.max_players,
+            image: m.image_url || 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+          }));
+        }
+
+        // Keep mock for sponsored & communities for UI completion
         const mockSponsored: SponsoredEvent[] = [
           { id: '1', title: 'Summer Champions League', date: 'Jul 15 - Aug 30', image: 'https://images.unsplash.com/photo-1518605368461-1e1e38ce8ba9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80', prize: '$10,000', participants: 32 },
           { id: '2', title: 'Downtown Hoops', date: 'Jul 20 - Jul 25', image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80', prize: '$5,000', participants: 16 },
@@ -85,24 +115,12 @@ export default function EventsScreen() {
           { id: '1', name: 'Downtown Hoopers', members: 124, image: 'https://images.unsplash.com/photo-1519861531473-9200262188bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80' },
           { id: '2', name: 'Weekend Padel', members: 89, image: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80' },
           { id: '3', name: 'FC Strikers', members: 210, image: 'https://images.unsplash.com/photo-1518605368461-1e1e38ce8ba9?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80' },
-          { id: '4', name: 'Sunrise Run Club', members: 345, image: 'https://images.unsplash.com/photo-1552674605-15c3705e9705?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80' },
-        ];
-
-        const mockEvents: EventItem[] = [
-          { id: '1', title: 'Casual 5v5 Pickup', date: 'Tomorrow, 7:00 PM', location: 'Elite Sports Arena', attendees: 8, maxAttendees: 10, image: 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80' },
-          { id: '2', title: 'Tennis Doubles', date: 'Saturday, 9:00 AM', location: 'Valley Tennis Complex', attendees: 2, maxAttendees: 4, image: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80' },
-          { id: '3', title: 'Pickleball Mixer', date: 'Jul 25', location: 'Valley Court', attendees: 16, maxAttendees: 20, image: 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-        ];
-
-        const mockTournaments: Tournament[] = [
-          { id: '1', title: 'City Basketball Cup', date: 'Aug 10', image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3', location: 'Central Arena', entryFee: '$50/team' },
-          { id: '2', title: 'Tennis Open', date: 'Aug 15', image: 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?ixlib=rb-4.0.3', location: 'Valley Court', entryFee: '$20/player' },
         ];
 
         setSponsoredEvents(mockSponsored);
         setCommunities(mockCommunities);
-        setEvents(mockEvents);
-        setTournaments(mockTournaments);
+        setEvents(fetchedEvents);
+        setTournaments(fetchedTournaments);
       } catch (error) {
         console.error("Failed to load events data", error);
       } finally {

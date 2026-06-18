@@ -10,6 +10,8 @@ import { Typography } from '../theme/typography';
 import { useResponsive } from '../hooks/useResponsive';
 import ScreenBackground from '../components/ScreenBackground';
 
+import { setSession } from '../utils/auth';
+
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 30;
 
@@ -58,7 +60,7 @@ export default function OTPScreen({ navigation, route }: any) {
     }
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     const code = otp.join('');
     if (code.length < OTP_LENGTH) { setError('Please enter the complete 6-digit code.'); triggerShake(); return; }
     setLoading(true);
@@ -66,7 +68,31 @@ export default function OTPScreen({ navigation, route }: any) {
       Animated.timing(scaleAnim, { toValue: 0.97, duration: 80, useNativeDriver: true, easing: Easing.out(Easing.quad) }),
       Animated.timing(scaleAnim, { toValue: 1, duration: 120, useNativeDriver: true, easing: Easing.out(Easing.quad) }),
     ]).start();
-    setTimeout(() => { setLoading(false); navigation.navigate('Interests', { email }); }, 1200);
+    
+    try {
+      const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${API_URL}/api/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, token: code })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Invalid or expired OTP');
+      }
+      
+      const data = await response.json();
+      if (data.user && data.user.id) {
+        setSession(data.user.id, data.user.email);
+      }
+      
+      setLoading(false);
+      navigation.navigate('Interests', { email });
+    } catch (err) {
+      setLoading(false);
+      setError('Invalid code. Please try again.');
+      triggerShake();
+    }
   };
 
   const handleResend = () => {

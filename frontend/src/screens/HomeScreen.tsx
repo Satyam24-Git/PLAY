@@ -66,34 +66,44 @@ export default function HomeScreen() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 800));
+        const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
+        
+        const [venuesRes, bookingsRes] = await Promise.all([
+          fetch(`${API_URL}/api/venues`),
+          fetch(`${API_URL}/api/bookings`)
+        ]);
 
-        // Mock response data
-        const mockAds: Advertisement[] = [
+        if (venuesRes.ok) {
+          const vData = await venuesRes.json();
+          setVenues(vData.map((v: any) => ({
+            id: v.id,
+            name: v.name,
+            location: v.location || 'Local Area',
+            rating: v.rating || 0,
+            image: v.image_url || 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?auto=format&fit=crop&w=800&q=80'
+          })));
+        }
+
+        if (bookingsRes.ok) {
+          const bData = await bookingsRes.json();
+          setBookings(bData.map((b: any) => ({
+            id: b.id,
+            title: 'Match Booking',
+            time: new Date(b.start_time).toLocaleString(),
+            location: b.venue ? b.venue.name : 'Unknown Venue',
+            image: (b.venue && b.venue.image_url) ? b.venue.image_url : 'https://images.unsplash.com/photo-1518605368461-1e1e38ce8ba9?auto=format&fit=crop&w=150&q=80'
+          })));
+        }
+
+        // Keep Ads mock for now as there's no ads table
+        setAds([
           { id: '1', title: 'Summer League 2026', subtitle: 'Register now and get 20% off!', image: 'https://images.unsplash.com/photo-1551280857-2b9bbe5240ce?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' },
           { id: '2', title: 'New Padel Courts', subtitle: 'Book your first game for free.', image: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' },
-          { id: '3', title: 'Pro Gear Sale', subtitle: 'Up to 50% off on equipment.', image: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' }
-        ];
+        ]);
 
-        const mockVenues: Venue[] = [
-          { id: '1', name: 'Elite Sports Arena', location: 'Downtown', rating: 4.8, image: 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-          { id: '2', name: 'Green Field Courts', location: 'Westside', rating: 4.5, image: 'https://images.unsplash.com/photo-1518605368461-1e1e38ce8ba9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-          { id: '3', name: 'City Hoops Center', location: 'Uptown', rating: 4.9, image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-          { id: '4', name: 'Padel Pro Club', location: 'Eastside', rating: 4.7, image: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-          { id: '5', name: 'Valley Tennis', location: 'North Hills', rating: 4.6, image: 'https://images.unsplash.com/photo-1595435934249-5df7ed86e1c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-        ];
+        // Mock stats since there is no stats service
+        setUserStats({ matches: 12, wins: 8, winRate: 65 });
 
-        const mockBookings: Booking[] = [
-          { id: '1', title: '5v5 Match', time: 'Today, 6:00 PM', location: 'Elite Sports Arena - Pitch 2', image: 'https://images.unsplash.com/photo-1518605368461-1e1e38ce8ba9?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80' }
-        ];
-
-        const mockStats: UserStats = { matches: 12, wins: 8, winRate: 65 };
-
-        setAds(mockAds);
-        setVenues(mockVenues);
-        setBookings(mockBookings);
-        setUserStats(mockStats);
       } catch (error) {
         console.error("Failed to load home screen data", error);
       } finally {

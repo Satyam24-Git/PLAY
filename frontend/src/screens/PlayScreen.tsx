@@ -75,15 +75,47 @@ export default function PlayScreen() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Simulate API Call
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 800));
+        const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
-        // Mock response data
+        // Fetch Matches
+        const matchesRes = await fetch(`${API_URL}/api/matches`);
+        let fetchedMatches: Match[] = [];
+        if (matchesRes.ok) {
+          const mData = await matchesRes.json();
+          fetchedMatches = mData.map((m: any) => ({
+            id: m.id,
+            title: `${m.sport_type} Session`,
+            sport: m.sport_type,
+            time: new Date(m.date).toLocaleString(),
+            location: m.venue?.name || 'Local Venue',
+            playersNeeded: m.max_players - m.current_players,
+            playersJoined: m.current_players,
+            players: m.current_players,
+            maxPlayers: m.max_players,
+            level: 'Any Level',
+            organizer: m.creator?.full_name || 'Player',
+            organizerAvatar: m.creator?.avatar_url || 'https://randomuser.me/api/portraits/men/32.jpg'
+          }));
+        }
+
+        // Fetch Venues
+        const venuesRes = await fetch(`${API_URL}/api/venues`);
+        let fetchedVenues: Venue[] = [];
+        if (venuesRes.ok) {
+          const vData = await venuesRes.json();
+          fetchedVenues = vData.map((v: any) => ({
+            id: v.id,
+            name: v.name,
+            location: v.location || 'Unknown',
+            rating: v.rating || 5.0,
+            image: v.image_url || 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+          }));
+        }
+
         const mockAds: Advertisement[] = [
           { id: '1', title: 'Join Local Leagues', subtitle: 'Compete and win prizes.', image: 'https://images.unsplash.com/photo-1518605368461-1e1e38ce8ba9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' },
           { id: '2', title: 'Need a team?', subtitle: 'Find players near you.', image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' },
@@ -99,25 +131,13 @@ export default function PlayScreen() {
 
         const mockPrevious: PreviousBooking[] = [
           { id: '1', venueName: 'Elite Sports Arena', date: 'Last played: 2 days ago', image: 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-          { id: '2', venueName: 'City Hoops Center', date: 'Last played: 1 week ago', image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-        ];
-
-        const mockVenues: Venue[] = [
-          { id: '1', name: 'Elite Sports Arena', location: 'Downtown', rating: 4.8, image: 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-          { id: '2', name: 'Green Field Courts', location: 'Westside', rating: 4.5, image: 'https://images.unsplash.com/photo-1518605368461-1e1e38ce8ba9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-          { id: '3', name: 'City Hoops Center', location: 'Uptown', rating: 4.9, image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-        ];
-
-        const mockMatches: Match[] = [
-          { id: '1', title: 'Sunday Pickup Game', sport: 'Football', time: 'Today, 6:00 PM', location: 'Downtown Turf', playersNeeded: 2, playersJoined: 10, players: 10, maxPlayers: 12, level: 'Intermediate', organizer: 'John Doe', organizerAvatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
-          { id: '2', title: 'Casual Hoops', sport: 'Basketball', time: 'Tomorrow, 5:00 PM', location: 'City Hoops', playersNeeded: 3, playersJoined: 7, players: 7, maxPlayers: 10, level: 'All Levels', organizer: 'Jane Smith', organizerAvatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
         ];
 
         setAds(mockAds);
         setFilters(mockFilters);
         setPreviousBookings(mockPrevious);
-        setVenues(mockVenues);
-        setMatches(mockMatches);
+        setVenues(fetchedVenues);
+        setMatches(fetchedMatches);
       } catch (error) {
         console.error("Failed to load play screen data", error);
       } finally {

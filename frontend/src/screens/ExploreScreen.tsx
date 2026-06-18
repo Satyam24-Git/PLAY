@@ -29,11 +29,39 @@ export default function ExploreScreen() {
   const [activeTab, setActiveTab] = useState<TabType>('find');
   const [loading, setLoading] = useState(true);
 
+  const [matches, setMatches] = useState<any[]>([]);
+  const [venues, setVenues] = useState<any[]>([]);
+
   useEffect(() => {
-    // Simulate loading data when switching tabs or mounting
     setLoading(true);
-    const timer = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(timer);
+    const fetchData = async () => {
+      try {
+        const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
+        
+        // Fetch matches
+        const matchesRes = await fetch(`${API_URL}/api/matches`);
+        if (matchesRes.ok) {
+          const mData = await matchesRes.json();
+          setMatches(mData);
+        }
+        
+        // Fetch venues
+        const venuesRes = await fetch(`${API_URL}/api/venues`);
+        if (venuesRes.ok) {
+          const vData = await venuesRes.json();
+          setVenues(vData);
+        }
+      } catch (err) {
+        console.error('Explore fetch err:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (activeTab === 'find') {
+      fetchData();
+    } else {
+      setTimeout(() => setLoading(false), 500);
+    }
   }, [activeTab]);
 
   const renderHeader = () => (
@@ -102,27 +130,66 @@ export default function ExploreScreen() {
       <View style={styles.section}>
         <Text style={[Typography.title2, { color: theme.text, marginBottom: 16 }]}>Players Looking for Games</Text>
         
-        {[1, 2, 3].map((_, i) => (
-          <View key={i} style={[styles.playerCard, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
-            <View style={styles.playerHeader}>
-              <Image source={{ uri: `https://randomuser.me/api/portraits/men/${30 + i}.jpg` }} style={styles.playerAvatar} />
-              <View style={styles.playerInfo}>
-                <Text style={[Typography.headline, { color: theme.text }]}>{['Alex', 'Jordan', 'Michael'][i]}</Text>
-                <Text style={[Typography.caption, { color: Colors.primary }]}>{['Football', 'Tennis', 'Basketball'][i]} • Intermediate</Text>
+        {matches.length === 0 && (
+          <Text style={[Typography.body, { color: theme.textSecondary }]}>No active matches nearby.</Text>
+        )}
+        
+        {matches.map((match) => (
+            <View key={match.id} style={[styles.playerCard, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
+              <View style={styles.playerHeader}>
+                <Image source={{ uri: match.creator?.avatar_url || 'https://randomuser.me/api/portraits/men/30.jpg' }} style={styles.playerAvatar} />
+                <View style={styles.playerInfo}>
+                  <Text style={[Typography.headline, { color: theme.text }]}>{match.creator?.full_name || 'Athlete'}</Text>
+                  <Text style={[Typography.caption, { color: Colors.primary }]}>{match.sport_type} • {match.current_players}/{match.max_players} Players • {match.venue?.name || 'Local Venue'}</Text>
+                </View>
               </View>
-              <Text style={[Typography.caption, { color: theme.textSecondary }]}>{i + 1}h ago</Text>
-            </View>
             <Text style={[Typography.body, { color: theme.text, marginBottom: 16 }]}>
-              Looking for 2 more players to join our weekly casual game at {['Downtown Turf', 'Valley Court', 'Elite Arena'][i]}.
+              Match scheduled for {new Date(match.date).toLocaleString()}! Let's play.
             </Text>
             <View style={[styles.playerActions, { borderTopColor: theme.border }]}>
               <View style={styles.playerMeta}>
-                <Ionicons name="location-outline" size={16} color={theme.textSecondary} />
-                <Text style={[Typography.caption, { color: theme.textSecondary, marginLeft: 4 }]}>2.5 mi away</Text>
+                <Ionicons name="calendar-outline" size={16} color={theme.textSecondary} />
+                <Text style={[Typography.caption, { color: theme.textSecondary, marginLeft: 4 }]}>{new Date(match.date).toLocaleDateString()}</Text>
               </View>
               <TouchableOpacity style={styles.connectButton}>
-                <Text style={styles.connectButtonText}>Connect</Text>
+                <Text style={styles.connectButtonText}>Join Match</Text>
               </TouchableOpacity>
+            </View>
+          </View>
+        ))}
+      </View>
+      
+      {/* Nearby Venues */}
+      <View style={styles.section}>
+        <Text style={[Typography.title2, { color: theme.text, marginBottom: 16 }]}>Nearby Venues</Text>
+        
+        {venues.length === 0 && (
+          <Text style={[Typography.body, { color: theme.textSecondary }]}>No venues available.</Text>
+        )}
+        
+        {venues.map((venue) => (
+          <View key={venue.id} style={[styles.coachCard, { backgroundColor: theme.cardBackground, borderColor: theme.border, padding: 20 }]}>
+            <View style={styles.coachInfo}>
+              <View style={styles.coachHeaderRow}>
+                <Text style={[Typography.headline, { color: theme.text, fontSize: 18 }]}>{venue.name}</Text>
+                <View style={styles.ratingBadge}>
+                  <Ionicons name="star" size={12} color="#000" />
+                  <Text style={styles.ratingText}>{venue.rating}</Text>
+                </View>
+              </View>
+              <Text style={[Typography.body, { color: Colors.primary, marginBottom: 8 }]}>{venue.sport_type}</Text>
+              
+              <View style={styles.coachMetaRow}>
+                <Ionicons name="location-outline" size={14} color={theme.textSecondary} />
+                <Text style={[Typography.caption, { color: theme.textSecondary, marginLeft: 4 }]}>{venue.location || 'Local Area'}</Text>
+              </View>
+              
+              <View style={styles.coachFooter}>
+                <Text style={[Typography.headline, { color: theme.text }]}>${venue.price_per_hour} <Text style={{ fontSize: 12, color: theme.textSecondary, fontWeight: 'normal' }}>/hr</Text></Text>
+                <TouchableOpacity style={styles.bookButton}>
+                  <Text style={styles.bookButtonText}>Book Venue</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         ))}

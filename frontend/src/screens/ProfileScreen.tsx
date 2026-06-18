@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TextInput, ActivityIndicator, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,6 +8,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
 import { useTheme } from '../theme/ThemeContext';
+import { getUserId, getUserEmail } from '../utils/auth';
 
 const INTERESTS = ['Football', 'Tennis', 'Basketball', 'Running', 'Padel', 'Cycling'];
 
@@ -16,6 +17,47 @@ export default function ProfileScreen() {
   const { isDarkMode, toggleTheme, theme } = useTheme();
   const [bio, setBio] = useState('');
   const [isGeneratingBio, setIsGeneratingBio] = useState(false);
+  
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const userId = getUserId();
+        if (!userId) {
+          setLoading(false);
+          return;
+        }
+
+        const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
+        let res = await fetch(`${API_URL}/api/profiles/${userId}`);
+        
+        if (res.status === 404) {
+          // Create default profile
+          const email = getUserEmail() || '';
+          const name = email.split('@')[0] || 'Athlete';
+          
+          res = await fetch(`${API_URL}/api/profiles`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: userId, full_name: name, avatar_url: 'https://randomuser.me/api/portraits/men/32.jpg' })
+          });
+        }
+        
+        if (res.ok) {
+          const data = await res.json();
+          setProfile(data);
+        }
+      } catch (err) {
+        console.error('Error fetching profile:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchProfile();
+  }, []);
 
   const handleGenerateBio = () => {
     setIsGeneratingBio(true);
@@ -26,21 +68,19 @@ export default function ProfileScreen() {
     }, 1500);
   };
 
-  // renderHeader is removed as it is now inline
-
   const renderBasicInfo = () => (
     <View style={styles.infoSection}>
       <View style={styles.avatarContainer}>
         <Image 
-          source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }} 
+          source={{ uri: profile?.avatar_url || 'https://randomuser.me/api/portraits/men/32.jpg' }} 
           style={styles.avatar} 
         />
         <View style={styles.verifiedBadge}>
           <Ionicons name="checkmark" size={14} color="#000" />
         </View>
       </View>
-      <Text style={[Typography.title1, styles.name, { color: theme.text }]}>Alex Johnson</Text>
-      <Text style={[Typography.body, styles.handle, { color: theme.textSecondary }]}>@alexplays</Text>
+      <Text style={[Typography.title1, styles.name, { color: theme.text }]}>{profile?.full_name || 'Loading...'}</Text>
+      <Text style={[Typography.body, styles.handle, { color: theme.textSecondary }]}>@{profile?.full_name?.toLowerCase().replace(/\s+/g, '') || 'athlete'}</Text>
       
       <View style={[styles.statsRow, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
         <View style={styles.statItem}>

@@ -1,10 +1,24 @@
 from fastapi import FastAPI, Request, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import httpx
 
 app = FastAPI(title="api-gateway")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 SERVICE_MAP = {
+    "auth": "http://localhost:8001/api/auth",
+    "profiles": "http://localhost:8002/api/profiles",
+    "tournaments": "http://localhost:8003/api/tournaments",
     "venues": "http://localhost:8004/api/venues",
+    "bookings": "http://localhost:8005/api/bookings",
+    "matches": "http://localhost:8006/api/matches",
     "shop": "http://localhost:8014/api",
     # other services will be added here
 }
