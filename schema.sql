@@ -97,8 +97,19 @@ CREATE TABLE IF NOT EXISTS public.matches (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- Advertisements table
+CREATE TABLE IF NOT EXISTS public.advertisements (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  subtitle TEXT NOT NULL,
+  image_url TEXT,
+  target_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
 ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.matches ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.advertisements ENABLE ROW LEVEL SECURITY;
 
 -- Policies for bookings
 CREATE POLICY "Bookings are viewable by participants and owners." 
@@ -119,3 +130,7 @@ CREATE POLICY "Users can create matches."
 
 CREATE POLICY "Creators can update their matches." 
   ON public.matches FOR UPDATE USING (auth.uid() = creator_id);
+
+-- Policies for advertisements
+CREATE POLICY "Advertisements are viewable by everyone." 
+  ON public.advertisements FOR SELECT USING (true);

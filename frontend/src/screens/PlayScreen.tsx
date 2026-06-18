@@ -116,10 +116,18 @@ export default function PlayScreen() {
           }));
         }
 
-        const mockAds: Advertisement[] = [
-          { id: '1', title: 'Join Local Leagues', subtitle: 'Compete and win prizes.', image: 'https://images.unsplash.com/photo-1518605368461-1e1e38ce8ba9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' },
-          { id: '2', title: 'Need a team?', subtitle: 'Find players near you.', image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' },
-        ];
+        // Fetch Ads
+        const adsRes = await fetch(`${API_URL}/api/ads`);
+        let fetchedAds: Advertisement[] = [];
+        if (adsRes.ok) {
+          const aData = await adsRes.json();
+          fetchedAds = aData.map((a: any) => ({
+            id: a.id,
+            title: a.title,
+            subtitle: a.subtitle,
+            image: a.image_url || 'https://images.unsplash.com/photo-1518605368461-1e1e38ce8ba9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
+          }));
+        }
 
         const mockFilters: Filter[] = [
           { id: '1', label: 'Near Me', active: true },
@@ -133,7 +141,7 @@ export default function PlayScreen() {
           { id: '1', venueName: 'Elite Sports Arena', date: 'Last played: 2 days ago', image: 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
         ];
 
-        setAds(mockAds);
+        setAds(fetchedAds);
         setFilters(mockFilters);
         setPreviousBookings(mockPrevious);
         setVenues(fetchedVenues);

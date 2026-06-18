@@ -68,9 +68,10 @@ export default function HomeScreen() {
         setLoading(true);
         const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
         
-        const [venuesRes, bookingsRes] = await Promise.all([
+        const [venuesRes, bookingsRes, adsRes] = await Promise.all([
           fetch(`${API_URL}/api/venues`),
-          fetch(`${API_URL}/api/bookings`)
+          fetch(`${API_URL}/api/bookings`),
+          fetch(`${API_URL}/api/ads`)
         ]);
 
         if (venuesRes.ok) {
@@ -95,11 +96,15 @@ export default function HomeScreen() {
           })));
         }
 
-        // Keep Ads mock for now as there's no ads table
-        setAds([
-          { id: '1', title: 'Summer League 2026', subtitle: 'Register now and get 20% off!', image: 'https://images.unsplash.com/photo-1551280857-2b9bbe5240ce?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' },
-          { id: '2', title: 'New Padel Courts', subtitle: 'Book your first game for free.', image: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80' },
-        ]);
+        if (adsRes.ok) {
+          const aData = await adsRes.json();
+          setAds(aData.map((a: any) => ({
+            id: a.id,
+            title: a.title,
+            subtitle: a.subtitle,
+            image: a.image_url || 'https://images.unsplash.com/photo-1551280857-2b9bbe5240ce?auto=format&fit=crop&w=1000&q=80'
+          })));
+        }
 
         // Mock stats since there is no stats service
         setUserStats({ matches: 12, wins: 8, winRate: 65 });

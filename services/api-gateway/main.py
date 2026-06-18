@@ -19,8 +19,8 @@ SERVICE_MAP = {
     "venues": "http://localhost:8004/api/venues",
     "bookings": "http://localhost:8005/api/bookings",
     "matches": "http://localhost:8006/api/matches",
+    "ads": "http://localhost:8007/api/ads",
     "shop": "http://localhost:8014/api",
-    # other services will be added here
 }
 
 @app.get("/")

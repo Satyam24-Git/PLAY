@@ -11,6 +11,7 @@ SERVICES = [
     {"name": "venue-service", "dir": "services/venue-service", "port": 8004},
     {"name": "booking-service", "dir": "services/booking-service", "port": 8005},
     {"name": "match-service", "dir": "services/match-service", "port": 8006},
+    {"name": "ad-service", "dir": "services/ad-service", "port": 8007},
     {"name": "shop-service", "dir": "services/shop-service", "port": 8014},
 ]
 
