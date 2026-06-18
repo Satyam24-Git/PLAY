@@ -6,7 +6,7 @@ import { useTheme } from '../../theme/ThemeContext';
 import { Colors } from '../../theme/colors';
 import { shopService } from '../../services/shopService';
 import { Product } from '../../types/shop';
-import { CATEGORIES } from '../../data/mockProducts';
+const CATEGORIES = ['All', 'Apparel', 'Equipment', 'Accessories', 'Nutrition'];
 import { useCart } from '../../contexts/CartContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

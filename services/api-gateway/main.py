@@ -5,6 +5,7 @@ app = FastAPI(title="api-gateway")
 
 SERVICE_MAP = {
     "venues": "http://localhost:8004/api/venues",
+    "shop": "http://localhost:8014/api",
     # other services will be added here
 }
 

@@ -1,31 +1,42 @@
 import { Product, Order, CartItem } from '../types/shop';
-import { MOCK_PRODUCTS } from '../data/mockProducts';
 
-// Simulate network delay
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
 export const shopService = {
   fetchProducts: async (): Promise<Product[]> => {
-    await delay(800); // Simulate network latency
-    return MOCK_PRODUCTS;
+    const response = await fetch(`${API_URL}/api/shop/products`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch products');
+    }
+    return response.json();
   },
 
   fetchProductById: async (id: string): Promise<Product | undefined> => {
-    await delay(500);
-    return MOCK_PRODUCTS.find(p => p.id === id);
+    const response = await fetch(`${API_URL}/api/shop/products/${id}`);
+    if (!response.ok) {
+      if (response.status === 404) return undefined;
+      throw new Error('Failed to fetch product');
+    }
+    return response.json();
   },
 
   placeOrder: async (items: CartItem[], total: number, shippingInfo: any): Promise<Order> => {
-    await delay(1500); // Simulate processing payment
+    const response = await fetch(`${API_URL}/api/shop/orders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        items,
+        total,
+        // In real app we'd pass shippingInfo here too
+      }),
+    });
     
-    const newOrder: Order = {
-      id: `ORD-${Math.random().toString(36).substring(2, 9).toUpperCase()}`,
-      items,
-      total,
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    };
+    if (!response.ok) {
+      throw new Error('Failed to place order');
+    }
     
-    return newOrder;
+    return response.json();
   }
 };
