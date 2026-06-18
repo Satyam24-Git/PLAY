@@ -10,7 +10,6 @@ import MainTabNavigator from './MainTabNavigator';
 import TermsScreen from '../screens/TermsScreen';
 import PrivacyScreen from '../screens/PrivacyScreen';
 import WebLayoutWrapper from '../components/WebLayoutWrapper';
-import ProfileScreen from '../screens/ProfileScreen';
 import { useResponsive } from '../hooks/useResponsive';
 import { ThemeProvider, useTheme } from '../theme/ThemeContext';
 import { DefaultTheme, DarkTheme } from '@react-navigation/native';
@@ -48,7 +47,6 @@ const InnerNavigator = () => (
     }}
   >
     <InnerStack.Screen name="MainTabs" component={MainTabNavigator} />
-    <InnerStack.Screen name="Profile" component={ProfileScreen} />
   </InnerStack.Navigator>
 );
 

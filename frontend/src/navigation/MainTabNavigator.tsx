@@ -10,6 +10,7 @@ import HomeScreen from '../screens/HomeScreen';
 import PlayScreen from '../screens/PlayScreen';
 import EventsScreen from '../screens/EventsScreen';
 import ExploreScreen from '../screens/ExploreScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -38,25 +39,26 @@ export default function MainTabNavigator() {
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: theme.textSecondary,
         tabBarStyle: [styles.tabBar, { 
-          paddingBottom: Platform.OS === 'ios' ? 20 : 0,
+          paddingBottom: Platform.OS === 'ios' ? 10 : 0,
           backgroundColor: Platform.OS === 'web' ? theme.navBackground : 'transparent',
           borderColor: theme.border,
         }],
         tabBarItemStyle: {
           justifyContent: 'center',
           alignItems: 'center',
-          paddingVertical: 4,
+          paddingTop: 6,
+          paddingBottom: 2,
         },
         tabBarLabelStyle: {
           paddingBottom: 0,
-          marginTop: -4,
+          marginTop: -2,
         },
         tabBarBackground: () => {
           if (Platform.OS === 'web') return null;
           return (
             <BlurView
               tint={isDarkMode ? "dark" : "light"}
-              intensity={80}
+              intensity={50}
               style={StyleSheet.absoluteFill}
             />
           );
@@ -67,6 +69,14 @@ export default function MainTabNavigator() {
       <Tab.Screen name="Play" component={PlayScreen} />
       <Tab.Screen name="Events" component={EventsScreen} />
       <Tab.Screen name="Explore" component={ExploreScreen} />
+      <Tab.Screen 
+        name="Profile" 
+        component={ProfileScreen} 
+        options={{
+          tabBarButton: () => null,
+          tabBarItemStyle: { display: 'none' },
+        }}
+      />
     </Tab.Navigator>
   );
 }
@@ -83,8 +93,8 @@ const styles = StyleSheet.create({
     bottom: 24,
     left: 20,
     right: 20,
-    height: 70,
-    borderRadius: 35,
+    height: 60,
+    borderRadius: 30,
     overflow: 'hidden',
     zIndex: 100,
   },

@@ -16,7 +16,7 @@ export const lightTheme: ThemeColors = {
   text: '#000000',
   textSecondary: '#6C6C6C',
   border: 'rgba(0,0,0,0.1)',
-  navBackground: 'rgba(255,255,255,0.85)',
+  navBackground: 'rgba(255,255,255,0.6)',
 };
 
 export const darkTheme: ThemeColors = {
@@ -25,7 +25,7 @@ export const darkTheme: ThemeColors = {
   text: '#FFFFFF',
   textSecondary: Colors.textSecondary,
   border: 'rgba(255,255,255,0.05)',
-  navBackground: 'rgba(0,0,0,0.85)',
+  navBackground: 'rgba(0,0,0,0.6)',
 };
 
 interface ThemeContextType {
