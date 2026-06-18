@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -61,62 +61,71 @@ export default function HomeScreen() {
   const [viewAllSection, setViewAllSection] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Simulate API Call
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
-        
-        const [venuesRes, bookingsRes, adsRes] = await Promise.all([
-          fetch(`${API_URL}/api/venues`),
-          fetch(`${API_URL}/api/bookings`),
-          fetch(`${API_URL}/api/ads`)
-        ]);
+  const [refreshing, setRefreshing] = useState(false);
 
-        if (venuesRes.ok) {
-          const vData = await venuesRes.json();
-          setVenues(vData.map((v: any) => ({
-            id: v.id,
-            name: v.name,
-            location: v.location || 'Local Area',
-            rating: v.rating || 0,
-            image: v.image_url || 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?auto=format&fit=crop&w=800&q=80'
-          })));
-        }
+  const fetchData = async () => {
+    try {
+      const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
+      
+      const [venuesRes, bookingsRes, adsRes] = await Promise.all([
+        fetch(`${API_URL}/api/venues`),
+        fetch(`${API_URL}/api/bookings`),
+        fetch(`${API_URL}/api/ads`)
+      ]);
 
-        if (bookingsRes.ok) {
-          const bData = await bookingsRes.json();
-          setBookings(bData.map((b: any) => ({
-            id: b.id,
-            title: 'Match Booking',
-            time: new Date(b.start_time).toLocaleString(),
-            location: b.venue ? b.venue.name : 'Unknown Venue',
-            image: (b.venue && b.venue.image_url) ? b.venue.image_url : 'https://images.unsplash.com/photo-1518605368461-1e1e38ce8ba9?auto=format&fit=crop&w=150&q=80'
-          })));
-        }
-
-        if (adsRes.ok) {
-          const aData = await adsRes.json();
-          setAds(aData.map((a: any) => ({
-            id: a.id,
-            title: a.title,
-            subtitle: a.subtitle,
-            image: a.image_url || 'https://images.unsplash.com/photo-1551280857-2b9bbe5240ce?auto=format&fit=crop&w=1000&q=80'
-          })));
-        }
-
-        // Mock stats since there is no stats service
-        setUserStats({ matches: 12, wins: 8, winRate: 65 });
-
-      } catch (error) {
-        console.error("Failed to load home screen data", error);
-      } finally {
-        setLoading(false);
+      if (venuesRes.ok) {
+        const vData = await venuesRes.json();
+        setVenues(vData.map((v: any) => ({
+          id: v.id,
+          name: v.name,
+          location: v.location || 'Local Area',
+          rating: v.rating || 0,
+          image: v.image_url || 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?auto=format&fit=crop&w=800&q=80'
+        })));
       }
-    };
 
-    fetchData();
+      if (bookingsRes.ok) {
+        const bData = await bookingsRes.json();
+        setBookings(bData.map((b: any) => ({
+          id: b.id,
+          title: 'Match Booking',
+          time: new Date(b.start_time).toLocaleString(),
+          location: b.venue ? b.venue.name : 'Unknown Venue',
+          image: (b.venue && b.venue.image_url) ? b.venue.image_url : 'https://images.unsplash.com/photo-1518605368461-1e1e38ce8ba9?auto=format&fit=crop&w=150&q=80'
+        })));
+      }
+
+      if (adsRes.ok) {
+        const aData = await adsRes.json();
+        setAds(aData.map((a: any) => ({
+          id: a.id,
+          title: a.title,
+          subtitle: a.subtitle,
+          image: a.image_url || 'https://images.unsplash.com/photo-1551280857-2b9bbe5240ce?auto=format&fit=crop&w=1000&q=80'
+        })));
+      }
+
+      // Mock stats since there is no stats service
+      setUserStats({ matches: 12, wins: 8, winRate: 65 });
+
+    } catch (error) {
+      console.error("Failed to load home screen data", error);
+    }
+  };
+
+  useEffect(() => {
+    const loadInitialData = async () => {
+      setLoading(true);
+      await fetchData();
+      setLoading(false);
+    };
+    loadInitialData();
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
   }, []);
 
   const renderHeader = () => (
@@ -301,7 +310,13 @@ export default function HomeScreen() {
   return (
     <View style={[styles.root, { backgroundColor: theme.background }]}>
       <SafeAreaView style={styles.safe} edges={['top']}>
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent} 
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} colors={[Colors.primary]} />
+          }
+        >
           {renderHeader()}
           {viewAllSection === 'venues' ? (
             renderAllVenues()

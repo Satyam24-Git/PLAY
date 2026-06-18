@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TextInput, ActivityIndicator, Switch } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TextInput, ActivityIndicator, Switch, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -21,42 +21,52 @@ export default function ProfileScreen() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const userId = getUserId();
-        if (!userId) {
-          setLoading(false);
-          return;
-        }
+  const [refreshing, setRefreshing] = useState(false);
 
-        const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
-        let res = await fetch(`${API_URL}/api/profiles/${userId}`);
-        
-        if (res.status === 404) {
-          // Create default profile
-          const email = getUserEmail() || '';
-          const name = email.split('@')[0] || 'Athlete';
-          
-          res = await fetch(`${API_URL}/api/profiles`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: userId, full_name: name, avatar_url: 'https://randomuser.me/api/portraits/men/32.jpg' })
-          });
-        }
-        
-        if (res.ok) {
-          const data = await res.json();
-          setProfile(data);
-        }
-      } catch (err) {
-        console.error('Error fetching profile:', err);
-      } finally {
-        setLoading(false);
+  const fetchProfile = async () => {
+    try {
+      const userId = getUserId();
+      if (!userId) {
+        return;
       }
+
+      const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
+      let res = await fetch(`${API_URL}/api/profiles/${userId}`);
+      
+      if (res.status === 404) {
+        // Create default profile
+        const email = getUserEmail() || '';
+        const name = email.split('@')[0] || 'Athlete';
+        
+        res = await fetch(`${API_URL}/api/profiles`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: userId, full_name: name })
+        });
+      }
+      
+      if (res.ok) {
+        const data = await res.json();
+        setProfile(data);
+      }
+    } catch (err) {
+      console.error('Error fetching profile:', err);
+    }
+  };
+
+  useEffect(() => {
+    const loadInitialProfile = async () => {
+      setLoading(true);
+      await fetchProfile();
+      setLoading(false);
     };
-    
-    fetchProfile();
+    loadInitialProfile();
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchProfile();
+    setRefreshing(false);
   }, []);
 
   const handleGenerateBio = () => {
@@ -227,7 +237,14 @@ export default function ProfileScreen() {
           <Text style={[Typography.title2, { color: theme.text }]}>Profile</Text>
           <View style={{ width: 28 }} />
         </View>
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          style={{ flex: 1 }} 
+          contentContainerStyle={styles.scrollContent} 
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} colors={[Colors.primary]} />
+          }
+        >
           {renderBasicInfo()}
           {renderBioSection()}
           {renderInterests()}

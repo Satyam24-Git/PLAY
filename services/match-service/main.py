@@ -29,7 +29,7 @@ def get_matches():
     try:
         supabase = get_supabase_client()
         # Fetch matches along with related profiles and venues
-        response = supabase.table("matches").select("*, profiles!creator_id(full_name, avatar_url), venues(*)").execute()
+        response = supabase.table("matches").select("*, profiles!creator_id(full_name), venues(*)").execute()
         
         # Map them properly for the frontend
         matches = []

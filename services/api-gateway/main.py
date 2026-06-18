@@ -4,6 +4,19 @@ import httpx
 
 app = FastAPI(title="api-gateway")
 
+http_client = None
+
+@app.on_event("startup")
+async def startup():
+    global http_client
+    http_client = httpx.AsyncClient(timeout=10.0)
+
+@app.on_event("shutdown")
+async def shutdown():
+    global http_client
+    if http_client:
+        await http_client.aclose()
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -33,20 +46,19 @@ async def route_api(service: str, path: str, request: Request):
         raise HTTPException(status_code=404, detail="Service not found")
         
     url = f"{SERVICE_MAP[service]}/{path}" if path else SERVICE_MAP[service]
-    
-    async with httpx.AsyncClient() as client:
-        try:
-            body = await request.body()
-            response = await client.request(
-                method=request.method,
-                url=url,
-                content=body,
-                headers=dict(request.headers),
-                timeout=10.0
-            )
-            return Response(content=response.content, status_code=response.status_code, media_type=response.headers.get("content-type", "application/json"))
-        except Exception as e:
-            raise HTTPException(status_code=502, detail=f"Bad Gateway: {str(e)}")
+    try:
+        body = await request.body()
+        # Filter out host header so we don't pass 'localhost:8000' to the backend services
+        headers = {k: v for k, v in request.headers.items() if k.lower() != 'host'}
+        response = await http_client.request(
+            method=request.method,
+            url=url,
+            content=body,
+            headers=headers
+        )
+        return Response(content=response.content, status_code=response.status_code, media_type=response.headers.get("content-type", "application/json"))
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Bad Gateway: {str(e)}")
 
 @app.api_route("/api/{service}", methods=["GET", "POST", "PUT", "DELETE"])
 async def route_api_root(service: str, request: Request):

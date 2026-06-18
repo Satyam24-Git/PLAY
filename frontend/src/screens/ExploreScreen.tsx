@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -32,36 +32,49 @@ export default function ExploreScreen() {
   const [matches, setMatches] = useState<any[]>([]);
   const [venues, setVenues] = useState<any[]>([]);
 
-  useEffect(() => {
-    setLoading(true);
-    const fetchData = async () => {
-      try {
-        const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
-        
-        // Fetch matches
-        const matchesRes = await fetch(`${API_URL}/api/matches`);
-        if (matchesRes.ok) {
-          const mData = await matchesRes.json();
-          setMatches(mData);
-        }
-        
-        // Fetch venues
-        const venuesRes = await fetch(`${API_URL}/api/venues`);
-        if (venuesRes.ok) {
-          const vData = await venuesRes.json();
-          setVenues(vData);
-        }
-      } catch (err) {
-        console.error('Explore fetch err:', err);
-      } finally {
-        setLoading(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
+      
+      // Fetch matches
+      const matchesRes = await fetch(`${API_URL}/api/matches`);
+      if (matchesRes.ok) {
+        const mData = await matchesRes.json();
+        setMatches(mData);
       }
-    };
-    if (activeTab === 'find') {
-      fetchData();
-    } else {
-      setTimeout(() => setLoading(false), 500);
+      
+      // Fetch venues
+      const venuesRes = await fetch(`${API_URL}/api/venues`);
+      if (venuesRes.ok) {
+        const vData = await venuesRes.json();
+        setVenues(vData);
+      }
+    } catch (err) {
+      console.error('Explore fetch err:', err);
     }
+  };
+
+  useEffect(() => {
+    const loadInitialData = async () => {
+      setLoading(true);
+      if (activeTab === 'find') {
+        await fetchData();
+      } else {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      setLoading(false);
+    };
+    loadInitialData();
+  }, [activeTab]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    if (activeTab === 'find') {
+      await fetchData();
+    }
+    setRefreshing(false);
   }, [activeTab]);
 
   const renderHeader = () => (
@@ -302,7 +315,13 @@ export default function ExploreScreen() {
   return (
     <View style={[styles.root, { backgroundColor: theme.background }]}>
       <SafeAreaView style={styles.safe} edges={['top']}>
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent} 
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} colors={[Colors.primary]} />
+          }
+        >
           {renderHeader()}
           {renderTabs()}
           

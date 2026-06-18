@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, TextInput, ScrollView, Platform } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, TextInput, ScrollView, Platform, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../theme/ThemeContext';
@@ -19,15 +19,26 @@ export default function ShopScreen() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadProducts = async () => {
+    const data = await shopService.fetchProducts();
+    setProducts(data);
+  };
 
   useEffect(() => {
-    const loadProducts = async () => {
+    const loadInitialProducts = async () => {
       setLoading(true);
-      const data = await shopService.fetchProducts();
-      setProducts(data);
+      await loadProducts();
       setLoading(false);
     };
-    loadProducts();
+    loadInitialProducts();
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadProducts();
+    setRefreshing(false);
   }, []);
 
   const filteredProducts = products.filter(p => {
@@ -125,6 +136,9 @@ export default function ShopScreen() {
           contentContainerStyle={styles.productList}
           columnWrapperStyle={styles.row}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} colors={[Colors.primary]} />
+          }
           ListEmptyComponent={
             <View style={styles.centerContainer}>
               <Text style={{ color: theme.textSecondary }}>No products found.</Text>

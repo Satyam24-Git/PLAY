@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -75,85 +75,95 @@ export default function PlayScreen() {
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
+  const [refreshing, setRefreshing] = useState(false);
 
-        // Fetch Matches
-        const matchesRes = await fetch(`${API_URL}/api/matches`);
-        let fetchedMatches: Match[] = [];
-        if (matchesRes.ok) {
-          const mData = await matchesRes.json();
-          fetchedMatches = mData.map((m: any) => ({
-            id: m.id,
-            title: `${m.sport_type} Session`,
-            sport: m.sport_type,
-            time: new Date(m.date).toLocaleString(),
-            location: m.venue?.name || 'Local Venue',
-            playersNeeded: m.max_players - m.current_players,
-            playersJoined: m.current_players,
-            players: m.current_players,
-            maxPlayers: m.max_players,
-            level: 'Any Level',
-            organizer: m.creator?.full_name || 'Player',
-            organizerAvatar: m.creator?.avatar_url || 'https://randomuser.me/api/portraits/men/32.jpg'
-          }));
-        }
+  const fetchData = async () => {
+    try {
+      const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000';
 
-        // Fetch Venues
-        const venuesRes = await fetch(`${API_URL}/api/venues`);
-        let fetchedVenues: Venue[] = [];
-        if (venuesRes.ok) {
-          const vData = await venuesRes.json();
-          fetchedVenues = vData.map((v: any) => ({
-            id: v.id,
-            name: v.name,
-            location: v.location || 'Unknown',
-            rating: v.rating || 5.0,
-            image: v.image_url || 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-          }));
-        }
-
-        // Fetch Ads
-        const adsRes = await fetch(`${API_URL}/api/ads`);
-        let fetchedAds: Advertisement[] = [];
-        if (adsRes.ok) {
-          const aData = await adsRes.json();
-          fetchedAds = aData.map((a: any) => ({
-            id: a.id,
-            title: a.title,
-            subtitle: a.subtitle,
-            image: a.image_url || 'https://images.unsplash.com/photo-1518605368461-1e1e38ce8ba9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
-          }));
-        }
-
-        const mockFilters: Filter[] = [
-          { id: '1', label: 'Near Me', active: true },
-          { id: '2', label: 'Available Now', active: false },
-          { id: '3', label: 'Top Rated', active: false },
-          { id: '4', label: 'Indoor', active: false },
-          { id: '5', label: 'Outdoor', active: false },
-        ];
-
-        const mockPrevious: PreviousBooking[] = [
-          { id: '1', venueName: 'Elite Sports Arena', date: 'Last played: 2 days ago', image: 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
-        ];
-
-        setAds(fetchedAds);
-        setFilters(mockFilters);
-        setPreviousBookings(mockPrevious);
-        setVenues(fetchedVenues);
-        setMatches(fetchedMatches);
-      } catch (error) {
-        console.error("Failed to load play screen data", error);
-      } finally {
-        setLoading(false);
+      // Fetch Matches
+      const matchesRes = await fetch(`${API_URL}/api/matches`);
+      let fetchedMatches: Match[] = [];
+      if (matchesRes.ok) {
+        const mData = await matchesRes.json();
+        fetchedMatches = mData.map((m: any) => ({
+          id: m.id,
+          title: `${m.sport_type} Session`,
+          sport: m.sport_type,
+          time: new Date(m.date).toLocaleString(),
+          location: m.venue?.name || 'Local Venue',
+          playersNeeded: m.max_players - m.current_players,
+          playersJoined: m.current_players,
+          players: m.current_players,
+          maxPlayers: m.max_players,
+          level: 'Any Level',
+          organizer: m.creator?.full_name || 'Player',
+          organizerAvatar: m.creator?.avatar_url || 'https://randomuser.me/api/portraits/men/32.jpg'
+        }));
       }
-    };
 
-    fetchData();
+      // Fetch Venues
+      const venuesRes = await fetch(`${API_URL}/api/venues`);
+      let fetchedVenues: Venue[] = [];
+      if (venuesRes.ok) {
+        const vData = await venuesRes.json();
+        fetchedVenues = vData.map((v: any) => ({
+          id: v.id,
+          name: v.name,
+          location: v.location || 'Unknown',
+          rating: v.rating || 5.0,
+          image: v.image_url || 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+        }));
+      }
+
+      // Fetch Ads
+      const adsRes = await fetch(`${API_URL}/api/ads`);
+      let fetchedAds: Advertisement[] = [];
+      if (adsRes.ok) {
+        const aData = await adsRes.json();
+        fetchedAds = aData.map((a: any) => ({
+          id: a.id,
+          title: a.title,
+          subtitle: a.subtitle,
+          image: a.image_url || 'https://images.unsplash.com/photo-1518605368461-1e1e38ce8ba9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
+        }));
+      }
+
+      const mockFilters: Filter[] = [
+        { id: '1', label: 'Near Me', active: true },
+        { id: '2', label: 'Available Now', active: false },
+        { id: '3', label: 'Top Rated', active: false },
+        { id: '4', label: 'Indoor', active: false },
+        { id: '5', label: 'Outdoor', active: false },
+      ];
+
+      const mockPrevious: PreviousBooking[] = [
+        { id: '1', venueName: 'Elite Sports Arena', date: 'Last played: 2 days ago', image: 'https://images.unsplash.com/photo-1574629810360-7efbc1921441?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
+      ];
+
+      setAds(fetchedAds);
+      setFilters(mockFilters);
+      setPreviousBookings(mockPrevious);
+      setVenues(fetchedVenues);
+      setMatches(fetchedMatches);
+    } catch (error) {
+      console.error("Failed to load play screen data", error);
+    }
+  };
+
+  useEffect(() => {
+    const loadInitialData = async () => {
+      setLoading(true);
+      await fetchData();
+      setLoading(false);
+    };
+    loadInitialData();
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
   }, []);
 
   const renderHeader = () => (
@@ -312,7 +322,13 @@ export default function PlayScreen() {
   return (
     <View style={[styles.root, { backgroundColor: theme.background }]}>
       <SafeAreaView style={styles.safe} edges={['top']}>
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent} 
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} colors={[Colors.primary]} />
+          }
+        >
           {renderHeader()}
           {renderSearchBar()}
           {renderAdvertisement()}
