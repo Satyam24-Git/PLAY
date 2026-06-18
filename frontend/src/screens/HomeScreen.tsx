@@ -118,7 +118,7 @@ export default function HomeScreen() {
       </TouchableOpacity>
 
       <View style={styles.headerActions}>
-        <TouchableOpacity style={styles.actionIcon}>
+        <TouchableOpacity style={styles.actionIcon} onPress={() => navigation.navigate('Shop')}>
           <Ionicons name="bag-handle-outline" size={28} color={theme.text} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.profileAvatar} onPress={() => navigation.navigate('Profile')}>

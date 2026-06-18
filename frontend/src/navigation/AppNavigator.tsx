@@ -12,6 +12,11 @@ import PrivacyScreen from '../screens/PrivacyScreen';
 import WebLayoutWrapper from '../components/WebLayoutWrapper';
 import { useResponsive } from '../hooks/useResponsive';
 import { ThemeProvider, useTheme } from '../theme/ThemeContext';
+import ProductDetailsScreen from '../screens/shop/ProductDetailsScreen';
+import CartScreen from '../screens/shop/CartScreen';
+import CheckoutScreen from '../screens/shop/CheckoutScreen';
+import ShopScreen from '../screens/shop/ShopScreen';
+import { CartProvider } from '../contexts/CartContext';
 import { DefaultTheme, DarkTheme } from '@react-navigation/native';
 
 export type RootStackParamList = {
@@ -23,6 +28,10 @@ export type RootStackParamList = {
   Profile: undefined;
   Terms: undefined;
   Privacy: undefined;
+  Shop: undefined;
+  ProductDetails: { productId: string };
+  Cart: undefined;
+  Checkout: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -47,6 +56,10 @@ const InnerNavigator = () => (
     }}
   >
     <InnerStack.Screen name="MainTabs" component={MainTabNavigator} />
+    <InnerStack.Screen name="Shop" component={ShopScreen} />
+    <InnerStack.Screen name="ProductDetails" component={ProductDetailsScreen} />
+    <InnerStack.Screen name="Cart" component={CartScreen} />
+    <InnerStack.Screen name="Checkout" component={CheckoutScreen} />
   </InnerStack.Navigator>
 );
 
@@ -115,7 +128,9 @@ const NavigationWrapper = () => {
 export default function AppNavigator() {
   return (
     <ThemeProvider>
-      <NavigationWrapper />
+      <CartProvider>
+        <NavigationWrapper />
+      </CartProvider>
     </ThemeProvider>
   );
 }

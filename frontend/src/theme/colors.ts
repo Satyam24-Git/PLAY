@@ -5,10 +5,10 @@ export const Colors = {
   surfaceElevated: '#F9F9F9',
 
   // Brand
-  primary: '#47FF0F',
-  primaryDark: '#35CC00',
-  primaryMuted: 'rgba(71,255,15,0.10)',
-  primaryBorder: 'rgba(71,255,15,0.30)',
+  primary: '#6FFF00',
+  primaryDark: '#6FFF00',
+  primaryMuted: 'rgba(111,255,0,0.10)',
+  primaryBorder: 'rgba(111,255,0,0.30)',
 
   // Text
   textPrimary: '#0A0A0A',
@@ -18,7 +18,7 @@ export const Colors = {
 
   // UI
   border: '#E5E5EA',
-  borderFocus: '#47FF0F',
+  borderFocus: '#6FFF00',
   inputBackground: '#F7F7F7',
   placeholder: '#C7C7CC',
 

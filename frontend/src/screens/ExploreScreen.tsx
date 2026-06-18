@@ -50,7 +50,7 @@ export default function ExploreScreen() {
       </TouchableOpacity>
 
       <View style={styles.headerActions}>
-        <TouchableOpacity style={styles.actionIcon}>
+        <TouchableOpacity style={styles.actionIcon} onPress={() => navigation.navigate('Shop')}>
           <Ionicons name="bag-handle-outline" size={28} color={theme.text} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.profileAvatar} onPress={() => navigation.navigate('Profile')}>
@@ -496,8 +496,8 @@ const styles = StyleSheet.create({
     width: 160,
     height: 160,
     borderColor: 'rgba(255, 255, 255, 0.1)',
-    borderLeftColor: '#32D74B', // Green
-    borderBottomColor: '#32D74B',
+    borderLeftColor: '#6FFF00', // Green
+    borderBottomColor: '#6FFF00',
   },
   ringInner: {
     width: 120,
